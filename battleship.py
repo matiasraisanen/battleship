@@ -34,12 +34,18 @@ numToLet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 shipPart = "■"
 shipHit = "□"
 
+# The following are values for the shooting artificial intelligence
+aiDidHit = False
+aiHitsInRow = 0
+aiNextCoordinates = ""
+deltaAxis = ""
+
 playerShips = [
 {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-{'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
+# {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+# {'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+# {'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+# {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
 ]
 
 aiShips = [
@@ -50,7 +56,10 @@ aiShips = [
 {'id': 'aiShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]}
 ]
 
+score = 0
+
 def printTable():
+    '''Print the play field'''
     os.system('cls' if os.name == 'nt' else 'clear')
     rownum = 0
 
@@ -78,6 +87,7 @@ def printTable():
 
 
 def checkShip(posX, posY, shipNum, direction, who):
+    '''Check for collisions while placing'''
     if who == "player":
         table = playerTable
     elif who == "ai":
@@ -107,13 +117,15 @@ def checkDamage(who):
     for i in table:
         totalHealth = totalHealth + i['length']
         totalDamage = totalDamage + i['damage']
-    if totalHealth == totalHealth:
+    if totalHealth == totalDamage:
         endGame(who)
 
 def endGame(who):
     if who == "player":
-        input("AI wins!")
+        print("The computer sunk all your ships!")
+        input("The computer wins!")
     elif who == "ai":
+        print("You sunk all the computer's ships!")
         input("Player wins!")
     mainMenu()
 
@@ -205,6 +217,7 @@ def drawShipPart(posX, posY):
     printTable()
 
 def explosion(table, posX, posY, hit = False):
+
     # If the tile is already a destroyed ship part
     if table[posY][posX] == shipHit:
         table[posY][posX] = "*"
@@ -233,7 +246,7 @@ def explosion(table, posX, posY, hit = False):
                 if i['length'] == i['damage']:
                     print("Ship Destroyed! You sunk the " +i['name']+".")
                     input("(Press ENTER)")
-                    checkDamage("ai")
+
     else:
         if table[posY][posX] == shipHit:
             pass
@@ -254,7 +267,7 @@ def playerFire():
             if aiTable[posY][posX] == shipPart:
                 explosion(aiTable, posX, posY, hit = True)
                 input("Hit! (Press ENTER to continue.)")
-
+                checkDamage("ai")
 
             else:
                 explosion(aiTable, posX, posY, hit = False)
@@ -265,20 +278,87 @@ def playerFire():
             input("Give proper coordinates! Range: a0 to h7 (Press ENTER)")
 
 def aiFire():
+    global aiDidHit
+    global aiNextCoordinates
+    global aiHitsInRow
     printTable()
-    posX = random.randint(0, 7)
-    posY = random.randint(0, 7)
+    while True:
+        if aiDidHit == False:
+            posX = random.randint(0, 7)
+            posY = random.randint(0, 7)
+        elif aiDidHit == True:
+            posX = int(aiNextCoordinates[0])
+            posY = int(aiNextCoordinates[1])
 
-    if playerTable[posY][posX] == shipPart:
+        # Do not fire again at broken ships or earlier misses
+        if playerTable[posY][posX] == shipHit:
+            continue
+        if playerTable[posY][posX] == "x":
+            continue
 
-        explosion(playerTable, posX, posY, hit = True)
-        print("Ai fires at " +numToLet[posX] + str(posY)+".")
-        input("Hit! (Press ENTER to continue.)")
+        # Fire at a ship part
+        if playerTable[posY][posX] == shipPart:
 
-    else:
-        explosion(playerTable, posX, posY, hit = False)
-        print("Ai fires at " +numToLet[posX] + str(posY)+".")
-        input("Miss! (Press ENTER to continue.)")
+            explosion(playerTable, posX, posY, hit = True)
+            print("Ai fires at " +numToLet[posX] + str(posY)+".")
+            aiNextCoordinates = randomDirection(posX, posY)
+            aiDidHit = True
+            aiHitsInRow += 1
+
+            input("Hit! (Press ENTER to continue.)")
+            checkDamage("ai")
+
+        # Missed shot
+        else:
+            explosion(playerTable, posX, posY, hit = False)
+            print("Ai fires at " +numToLet[posX] + str(posY)+".")
+            aiDidHit = False
+            aiHitsInRow = 0
+            input("Miss! (Press ENTER to continue.)")
+        return
+
+def randomDirection(posX, posY):
+    '''Sweet artificial intelligence. Figures out where to fire next.'''
+    global aiHitsInRow
+    global deltaAxis
+
+    while True:
+
+        if aiHitsInRow == 1:
+            selectAxis = random.randint(0,1)
+            selectPolarity = random.randint(0,1)
+
+            if selectAxis == 0:
+                if selectPolarity == 0:
+                    posX -= 1
+                    deltaAxis = "negativeX"
+                elif selectPolarity == 1:
+                    posX += 1
+                    deltaAxis = "positiveX"
+            elif selectAxis == 1:
+                if selectPolarity == 0:
+                    posY -= 1
+                    deltaAxis = "negativeY"
+                elif selectPolarity == 1:
+                    posY += 1
+                    deltaAxis = "positiveY"
+            if posX < 0 or posX > 7 or posY < 0 or posY > 7:
+                continue
+
+
+        elif aiHitsInRow > 1:
+            if deltaAxis == "negativeX":
+                posX -= 1
+            elif deltaAxis == "positiveX":
+                posX += 1
+            elif deltaAxis == "negativeY":
+                posY -= 1
+            elif deltaAxis == "positiveY":
+                posY += 1
+
+        return posX, posY
+
+
 
 def playerPlacement():
     input("Placement phase begins! (Press ENTER to continue)")
