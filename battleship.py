@@ -3,30 +3,6 @@ import time
 import sys
 import random
 
-# Initialize the playfield with an empty, open sea
-playerTable = [
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-]
-
-aiTable = [
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-    ['.', '.', '.', '.', '.', '.', '.', '.', ],
-]
-
-
 # Following two lists are used to translate the letter in the coordinates back into numbers.
 letToNum = {'a':0, 'b':1, 'c':2, 'd':3, 'e':4, 'f':5, 'g':6, 'h':7, 'i':8, 'j':9}
 numToLet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -43,24 +19,62 @@ deltaAxis = ""
 difficulty = "easy"
 
 # List of player's ships
-playerShips = [
-{'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-{'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
-]
-
-# List of computer's ships
-aiShips = [
-{'id': 'aiShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-{'id': 'aiShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'aiShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'aiShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'aiShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]}
-]
-
+playerTable = []
+aiTable = []
+playerShips = []
+aiShips = []
 score = 0
+
+
+
+
+def initializeGame():
+    global playerTable
+    global aiTable
+    global playerShips
+    global aiShips
+    global score
+
+    score = 0
+    playerTable = [
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+    ]
+
+    aiTable = [
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+        ['.', '.', '.', '.', '.', '.', '.', '.', ],
+    ]
+
+    playerShips = [
+    {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
+    {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
+    ]
+
+    # List of computer's ships
+    aiShips = [
+    {'id': 'aiShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
+    {'id': 'aiShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'aiShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'aiShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'aiShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]}
+    ]
+
 
 def printTable():
     '''Print the play field'''
@@ -84,10 +98,11 @@ def printTable():
         rownum += 1
     print("##################   ##################")
     print("■ = Ship section: intact")
-    print("□ = Ship section: destroyed")
+    print("□ = Ship section: hit")
     print("x = Missed shot")
     print(". = Open sea")
     print("Score:", score)
+    print("")
 
 
 def checkShip(posX, posY, shipNum, direction, who):
@@ -128,10 +143,12 @@ def checkDamage(who):
 def endGame(who):
     if who == "player":
         print("The computer sunk all your ships!")
-        input("The computer wins!")
+        print("The computer wins!")
+        time.sleep(3)
     elif who == "ai":
         print("You sunk all the computer's ships!")
-        input("You win!")
+        print("You win!")
+        time.sleep(2)
     mainMenu()
 
 
@@ -144,19 +161,23 @@ def placeShip(shipNum):
             startPosY = int(coords[1])
             direction = input("Set direction (r)ight/(d)own): ")
             if not (direction=="r" or direction=="d"):
-                input("Invalid direction (Press ENTER)")
+                print("Invalid direction")
+                time.sleep(1.5)
                 continue
 
             if direction == "r" and (startPosX + shipNum['length']) > 8:
-                input("Does not fit: Out of bounds (Press ENTER)")
+                print("Does not fit: Out of bounds")
+                time.sleep(1.5)
                 continue
             if direction == "d" and (startPosY + shipNum['length']) > 8:
-                input("Does not fit: Out of bounds (Press ENTER)")
+                print("Does not fit: Out of bounds")
+                time.sleep(1.5)
                 continue
 
             # Check for collisions
             if checkShip(startPosX, startPosY, shipNum, direction, "player") == True:
-                input("Does not fit: Collides with another ship. (Press ENTER)")
+                print("Does not fit: Collides with another ship")
+                time.sleep(1.5)
                 continue
 
             # Place the ship part
@@ -173,9 +194,11 @@ def placeShip(shipNum):
                     startPosY += 1
             return
         except IndexError:
-            input("Invalid coordinates (Press ENTER)")
+            print("Invalid coordinates")
+            time.sleep(1.5)
         except KeyError:
-            input("Invalid coordinates (Press ENTER)")
+            print("Invalid coordinates")
+            time.sleep(1.5)
         printTable()
 
 def aiPlaceShip(shipNum):
@@ -255,7 +278,8 @@ def explosion(table, posX, posY, hit = False):
     if hit:
         table[posY][posX] = shipHit
         printTable()
-        input("Hit! (Press ENTER to continue)")
+        print("Hit!")
+        time.sleep(1.5)
         for i in ships:
             if str(posX)+str(posY) in i['coords']:
                 i['damage'] += 1
@@ -263,11 +287,11 @@ def explosion(table, posX, posY, hit = False):
                     if table == aiTable:
                         print("Ship Destroyed! You sunk the " +i['name']+".")
                         score += 200
-                        input("(Press ENTER)")
+                        time.sleep(2)
                     elif table == playerTable:
                         print("Ship Destroyed! Computer sunk your " +i['name']+".")
                         score -= 50
-                        input("(Press ENTER)")
+                        time.sleep(2)
 
     else:
         if table[posY][posX] == shipHit:
@@ -276,7 +300,8 @@ def explosion(table, posX, posY, hit = False):
             print(table[posY][posX])
             table[posY][posX] = "x"
         printTable()
-        input("Miss! (Press ENTER to continue.)")
+        print("Miss!")
+        time.sleep(1.5)
 
 
 
@@ -285,6 +310,7 @@ def playerFire():
     while True:
         try:
             printTable()
+            print("Your turn")
             coords = input("Enter coordinates to fire at: ")
             posX = letToNum[coords[0].lower()]
             posY = int(coords[1])
@@ -300,11 +326,14 @@ def playerFire():
 
             break
         except IndexError:
-            input("Give proper coordinates! Range: a0 to h7 (Press ENTER)")
+            print("Give proper coordinates! Range: a0 to h7")
+            time.sleep(1.5)
         except KeyError:
-            input("Give proper coordinates! Range: a0 to h7 (Press ENTER)")
+            print("Give proper coordinates! Range: a0 to h7")
+            time.sleep(1.5)
         except ValueError:
-            input("Give proper coordinates! Range: a0 to h7 (Press ENTER)")
+            print("Give proper coordinates! Range: a0 to h7")
+            time.sleep(1.5)
 
 # def aiFire():
 #     global score
@@ -374,14 +403,17 @@ def aiFire():
             if playerTable[posY][posX] == shipPart:
                 score -=10
                 print("Ai fires at " +numToLet[posX] + str(posY)+".")
+                time.sleep(1.0)
                 explosion(playerTable, posX, posY, hit = True)
-                input("(Press ENTER to continue.)")
                 checkDamage("player")
 
             # Missed shot
             else:
-                explosion(playerTable, posX, posY, hit = False)
                 print("Ai fires at " +numToLet[posX] + str(posY)+".")
+                time.sleep(1)
+                explosion(playerTable, posX, posY, hit = False)
+
+
             return
     if difficulty == "impossible":
         for i in playerTable:
@@ -558,10 +590,11 @@ def mainMenu():
 
 
 def newGame():
-        printTable()
-        aiPlacement()
-        playerPlacement()
-        firingPhase()
+    initializeGame()
+    printTable()
+    aiPlacement()
+    playerPlacement()
+    firingPhase()
 
 if __name__ == '__main__':
     mainMenu()
