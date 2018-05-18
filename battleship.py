@@ -40,15 +40,15 @@ aiDidHit = False
 aiHitsInRow = 0
 aiNextCoordinates = ""
 deltaAxis = ""
-difficulty = "impossible"
+difficulty = "easy"
 
 # List of player's ships
 playerShips = [
 {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-# {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-# {'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-# {'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-# {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
+{'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+{'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+{'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+{'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
 ]
 
 # List of computer's ships
@@ -78,7 +78,7 @@ def printTable():
         print("#   "+str(rownum), end="")
         for j in item_ai:
             if j == shipPart:
-                j = "■" #Change this to "." when done
+                j = "." #Change this to "■" when you wanna see enemy ships
             print(" "+j, end='', flush=True)
         print("#")
         rownum += 1
@@ -382,7 +382,6 @@ def aiFire():
             else:
                 explosion(playerTable, posX, posY, hit = False)
                 print("Ai fires at " +numToLet[posX] + str(posY)+".")
-                input("Miss! (Press ENTER to continue.)")
             return
     if difficulty == "impossible":
         for i in playerTable:
@@ -460,6 +459,28 @@ def firingPhase():
     while True:
         playerFire()
         aiFire()
+def setDifficulty():
+    global difficulty
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("SET DIFFICULTY")
+    diffSetting = input("\n\
+    (1) Easy\n\
+    (2) Normal\n\
+    (3) Impossible\n\n\
+    Make a selection: ")
+
+    if diffSetting == "1":
+        difficulty = "easy"
+    elif diffSetting == "2":
+        difficulty = "easy" #Change to NORMAL later
+    elif diffSetting == "3":
+        difficulty = "impossible"
+    else:
+        print("\tInvalid selection!")
+        time.sleep(1)
+        setDifficulty()
+
+
 
 def mainMenu():
     while True:
@@ -475,18 +496,24 @@ def mainMenu():
 
         selection = input("\
         (1) New game\n\
-        (2) How to play\n\
-        (3) About\n\
-        (4) Quit\n\
+        (2) Set difficulty\n\
+        (3) How to play\n\
+        (4) About\n\
+        (5) Quit\n\n\
         Make a selection: ")
 
         if selection == "1":
             newGame()
-        elif selection == "2":
+        elif selection =="2":
+            setDifficulty()
+
+        elif selection == "3":
+            '''How to play'''
             os.system('cls' if os.name == 'nt' else 'clear')
+            print("HOW TO PLAY")
             print("")
             print("--Placement phase")
-            print("Place your ships. First, set the coordinates where you want your ship's stern to be.")
+            print("Place your ships. First, set the coordinates where you want your ship's starting point to be.")
             print("Next, choose the direction to extend your ship to.")
             print("Make sure you stay withing the boundaries of the coordinates from a0 to h7.")
             print("")
@@ -505,13 +532,14 @@ def mainMenu():
             print("  --Easy")
             print("   The computer fires at random coordinates")
             print("  --Normal")
-            print("   If the computer hits a ship, it will take its next shot near those coordinates. (Not yet implemented)")
+            print("   Default difficulty. The computer recognizes when it hits a ship, and fires the next shots in close proximity. (Not yet implemented)")
             print("  --Impossible")
             print("   The computer has radar, sonar and homing missiles.")
             print("")
             input("(Press ENTER to continue)")
             continue
-        elif selection == "3":
+        elif selection == "4":
+            '''About'''
             os.system('cls' if os.name == 'nt' else 'clear')
             print("")
             print("A game of Battleship.")
@@ -520,7 +548,8 @@ def mainMenu():
             print("")
             input("(Press ENTER to continue)")
             continue
-        elif selection == "4":
+        elif selection == "5":
+            '''Quit'''
             sys.exit()
         else:
             print("Invalid selection.")
