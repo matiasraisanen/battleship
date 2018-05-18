@@ -40,14 +40,15 @@ aiDidHit = False
 aiHitsInRow = 0
 aiNextCoordinates = ""
 deltaAxis = ""
+difficulty = "impossible"
 
 # List of player's ships
 playerShips = [
 {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-{'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-{'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
+# {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+# {'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+# {'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+# {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
 ]
 
 # List of computer's ships
@@ -162,9 +163,13 @@ def placeShip(shipNum):
             for i in range(shipNum['length']):
                 if direction == "r":
                     drawShipPart(startPosX, startPosY)
+                    # Update ships coordinates
+                    shipNum['coords'].append(str(startPosX)+str(startPosY))
                     startPosX += 1
                 elif direction == "d":
                     drawShipPart(startPosX, startPosY)
+                    # Update ships coordinates
+                    shipNum['coords'].append(str(startPosX)+str(startPosY))
                     startPosY += 1
             return
         except IndexError:
@@ -250,6 +255,7 @@ def explosion(table, posX, posY, hit = False):
     if hit:
         table[posY][posX] = shipHit
         printTable()
+        input("Hit! (Press ENTER to continue)")
         for i in ships:
             if str(posX)+str(posY) in i['coords']:
                 i['damage'] += 1
@@ -270,6 +276,8 @@ def explosion(table, posX, posY, hit = False):
             print(table[posY][posX])
             table[posY][posX] = "x"
         printTable()
+        input("Miss! (Press ENTER to continue.)")
+
 
 
 def playerFire():
@@ -282,17 +290,20 @@ def playerFire():
             posY = int(coords[1])
 
             if aiTable[posY][posX] == shipPart:
-                explosion(aiTable, posX, posY, hit = True)
                 score += 100
-                input("Hit! (Press ENTER to continue.)")
+                explosion(aiTable, posX, posY, hit = True)
                 checkDamage("ai")
 
             else:
                 explosion(aiTable, posX, posY, hit = False)
-                input("Miss! (Press ENTER to continue.)")
+
 
             break
         except IndexError:
+            input("Give proper coordinates! Range: a0 to h7 (Press ENTER)")
+        except KeyError:
+            input("Give proper coordinates! Range: a0 to h7 (Press ENTER)")
+        except ValueError:
             input("Give proper coordinates! Range: a0 to h7 (Press ENTER)")
 
 # def aiFire():
@@ -346,33 +357,46 @@ def playerFire():
 #         return
 
 def aiFire():
+    global difficulty
     global score
     printTable()
-    while True:
-        posX = random.randint(0, 7)
-        posY = random.randint(0, 7)
-        # Do not fire again at broken ships or earlier misses
-        if playerTable[posY][posX] == shipHit:
-            continue
-        if playerTable[posY][posX] == "x":
-            continue
+    if difficulty == "easy":
+        while True:
+            posX = random.randint(0, 7)
+            posY = random.randint(0, 7)
+            # Do not fire again at broken ships or earlier misses
+            if playerTable[posY][posX] == shipHit:
+                continue
+            if playerTable[posY][posX] == "x":
+                continue
 
-        # Fire at a ship part
-        if playerTable[posY][posX] == shipPart:
+            # Fire at a ship part
+            if playerTable[posY][posX] == shipPart:
+                score -=10
+                print("Ai fires at " +numToLet[posX] + str(posY)+".")
+                explosion(playerTable, posX, posY, hit = True)
+                input("(Press ENTER to continue.)")
+                checkDamage("player")
 
-            explosion(playerTable, posX, posY, hit = True)
-            print("Ai fires at " +numToLet[posX] + str(posY)+".")
+            # Missed shot
+            else:
+                explosion(playerTable, posX, posY, hit = False)
+                print("Ai fires at " +numToLet[posX] + str(posY)+".")
+                input("Miss! (Press ENTER to continue.)")
+            return
+    if difficulty == "impossible":
+        for i in playerTable:
+            for j in i:
+                if j == shipPart:
+                    posY = playerTable.index(i)
+                    posX = i.index(shipPart)
+                    print("Ai fires at " +numToLet[posX] + str(posY)+".")
+                    input("(Press ENTER to continue)")
+                    explosion(playerTable, posX, posY, hit = True)
+                    checkDamage("player")
+                    score -=10
+                    return
 
-            input("Hit! (Press ENTER to continue.)")
-            score -=10
-            checkDamage("ai")
-
-        # Missed shot
-        else:
-            explosion(playerTable, posX, posY, hit = False)
-            print("Ai fires at " +numToLet[posX] + str(posY)+".")
-            input("Miss! (Press ENTER to continue.)")
-        return
 
 def randomDirection(posX, posY):
     '''Sweet artificial intelligence. Figures out where to fire next.'''
@@ -475,6 +499,15 @@ def mainMenu():
             print("Enemy ship sunk = 200pts")
             print("Player ship hit = -10pts")
             print("Player ship sunk = -50pts")
+            print("")
+            print("--Difficulty")
+            print("The game has three difficulty settings")
+            print("  --Easy")
+            print("   The computer fires at random coordinates")
+            print("  --Normal")
+            print("   If the computer hits a ship, it will take its next shot near those coordinates. (Not yet implemented)")
+            print("  --Impossible")
+            print("   The computer has radar, sonar and homing missiles.")
             print("")
             input("(Press ENTER to continue)")
             continue
