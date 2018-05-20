@@ -2,6 +2,8 @@ import os
 import time
 import sys
 import random
+from operator import itemgetter
+import pickle
 
 # Following two lists are used to translate the letter in the coordinates back into numbers.
 letToNum = {'a':0, 'b':1, 'c':2, 'd':3, 'e':4, 'f':5, 'g':6, 'h':7, 'i':8, 'j':9}
@@ -24,6 +26,7 @@ aiTable = []
 playerShips = []
 aiShips = []
 score = 0
+name = "Beta Tester"
 
 
 
@@ -60,18 +63,18 @@ def initializeGame():
 
     playerShips = [
     {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-    {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    {'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    {'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
+    # {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
     ]
 
     # List of computer's ships
     aiShips = [
-    {'id': 'aiShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-    {'id': 'aiShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    {'id': 'aiShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    {'id': 'aiShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'aiShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
+    # {'id': 'aiShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'aiShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'aiShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     {'id': 'aiShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]}
     ]
 
@@ -92,7 +95,7 @@ def printTable():
         print("#   "+str(rownum), end="")
         for j in item_ai:
             if j == shipPart:
-                j = "." #Change this to "■" when you wanna see enemy ships
+                j = "■" #Change this to "■" when you wanna see enemy ships
             print(" "+j, end='', flush=True)
         print("#")
         rownum += 1
@@ -149,6 +152,7 @@ def endGame(who):
         print("You sunk all the computer's ships!")
         print("You win!")
         time.sleep(2)
+    saveHiScore()
     mainMenu()
 
 
@@ -275,33 +279,60 @@ def explosion(table, posX, posY, hit = False):
     table[posY][posX] = "¤"
     time.sleep(.2)
     printTable()
+
     if hit:
         table[posY][posX] = shipHit
         printTable()
-        print("Hit!")
-        time.sleep(1.5)
+
+        if table == playerTable:
+            print("Computer's turn")
+            time.sleep(1)
+            print("Computer fires at " +numToLet[posX] + str(posY)+".")
+            time.sleep(1)
+
+        if table == aiTable:
+            print("You fire at " +numToLet[posX] + str(posY)+".")
+            time.sleep(1)
+            print("That's a hit!")
+            time.sleep(1)
+
         for i in ships:
             if str(posX)+str(posY) in i['coords']:
+                if table == playerTable:
+                    print("... and hits your "+i['name']+"!")
+                time.sleep(1)
+
                 i['damage'] += 1
                 if i['length'] == i['damage']:
                     if table == aiTable:
                         print("Ship Destroyed! You sunk the " +i['name']+".")
                         score += 200
-                        time.sleep(2)
+                        time.sleep(1)
                     elif table == playerTable:
                         print("Ship Destroyed! Computer sunk your " +i['name']+".")
                         score -= 50
-                        time.sleep(2)
+                        time.sleep(1)
 
     else:
-        if table[posY][posX] == shipHit:
-            pass
-        else:
-            print(table[posY][posX])
-            table[posY][posX] = "x"
-        printTable()
-        print("Miss!")
-        time.sleep(1.5)
+        if table == playerTable:
+            print("Computer's turn")
+            time.sleep(1)
+            print("Computer fires at " +numToLet[posX] + str(posY)+".")
+            time.sleep(1)
+            print("... and misses!")
+            time.sleep(1)
+
+        if table == aiTable:
+            print("You fire at " +numToLet[posX] + str(posY)+".")
+            time.sleep(1)
+            print("... you miss.")
+            time.sleep(1)
+            if table[posY][posX] == shipHit:
+                pass
+            else:
+                print(table[posY][posX])
+                table[posY][posX] = "x"
+    printTable()
 
 
 
@@ -322,8 +353,6 @@ def playerFire():
 
             else:
                 explosion(aiTable, posX, posY, hit = False)
-
-
             break
         except IndexError:
             print("Give proper coordinates! Range: a0 to h7")
@@ -402,27 +431,20 @@ def aiFire():
             # Fire at a ship part
             if playerTable[posY][posX] == shipPart:
                 score -=10
-                print("Ai fires at " +numToLet[posX] + str(posY)+".")
-                time.sleep(1.0)
                 explosion(playerTable, posX, posY, hit = True)
                 checkDamage("player")
 
             # Missed shot
             else:
-                print("Ai fires at " +numToLet[posX] + str(posY)+".")
-                time.sleep(1)
                 explosion(playerTable, posX, posY, hit = False)
-
-
             return
+
     if difficulty == "impossible":
         for i in playerTable:
             for j in i:
                 if j == shipPart:
                     posY = playerTable.index(i)
                     posX = i.index(shipPart)
-                    print("Ai fires at " +numToLet[posX] + str(posY)+".")
-                    input("(Press ENTER to continue)")
                     explosion(playerTable, posX, posY, hit = True)
                     checkDamage("player")
                     score -=10
@@ -481,7 +503,9 @@ def randomDirection(posX, posY):
 
 
 def playerPlacement():
-    input("Placement phase begins! (Press ENTER to continue)")
+    print("Placement phase begins!")
+    print("You have five ships to place!")
+    input("(Press ENTER to continue)")
     for i in playerShips:
         placeShip(i)
     print("Placement phase complete.")
@@ -511,6 +535,61 @@ def setDifficulty():
         print("\tInvalid selection!")
         time.sleep(1)
         setDifficulty()
+
+def hiScoreExists():
+    """Check if the high score file exists, and create one if there is no file."""
+    emptylist = []
+    try:
+        hiscore = open("hiscore.file", 'rb')
+        hiscore.close()
+    except IOError:
+        hiscore = open("hiscore.file", 'wb')
+        pickle.dump(emptylist, hiscore)
+        hiscore.close()
+
+def saveHiScore():
+    """Save the current score as a tuple. High Score list contains 10 best scores. If list is longer, the lowest score is discarded"""
+    high_scores = []
+    global score
+    global name
+    global difficulty
+    hiScoreExists()
+
+    with open('hiscore.file', 'rb') as hs:
+        high_scores = pickle.load(hs)
+
+    high_scores.append((name, score, difficulty))
+
+    high_scores = sorted(high_scores, key=itemgetter(1),reverse=True)[:10]
+
+    with  open("hiscore.file","wb") as hiscore:
+        pickle.dump(high_scores, hiscore)
+
+def readHiScore():
+    """Displays the current high scores"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+    high_scores = []
+    hiScoreExists()
+    print("==================================================================================")
+    print(" ██╗  ██╗██╗ ██████╗ ██╗  ██╗    ███████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗")
+    print(" ██║  ██║██║██╔════╝ ██║  ██║    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝")
+    print(" ███████║██║██║  ███╗███████║    ███████╗██║     ██║   ██║██████╔╝█████╗  ███████╗")
+    print(" ██╔══██║██║██║   ██║██╔══██║    ╚════██║██║     ██║   ██║██╔══██╗██╔══╝  ╚════██║")
+    print(" ██║  ██║██║╚██████╔╝██║  ██║    ███████║╚██████╗╚██████╔╝██║  ██║███████╗███████║")
+    print(" ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝")
+    print("==================================================================================")
+    rowNum = 1
+    with open('hiscore.file', 'rb') as hs:
+        high_scores = pickle.load(hs)
+
+    for i in high_scores:
+        name, score, difficulty = i
+        print(str(rowNum)+".",name,"| Difficulty:",difficulty," | Score:",score)
+        rowNum += 1
+    print("==================================================================================")
+    print("\n")
+    input("(Press ENTER to continue)")
+
 
 
 
@@ -561,11 +640,11 @@ def mainMenu():
             print("")
             print("--Difficulty")
             print("The game has three difficulty settings")
-            print("  --Easy")
+            print("  1. Easy")
             print("   The computer fires at random coordinates")
-            print("  --Normal")
-            print("   Default difficulty. The computer recognizes when it hits a ship, and fires the next shots in close proximity. (Not yet implemented)")
-            print("  --Impossible")
+            print("  2. Normal")
+            print("   Default difficulty. The computer is a bit more clever. (Not yet implemented)")
+            print("  3. Impossible")
             print("   The computer has radar, sonar and homing missiles.")
             print("")
             input("(Press ENTER to continue)")
@@ -583,6 +662,8 @@ def mainMenu():
         elif selection == "5":
             '''Quit'''
             sys.exit()
+        elif selection == "6":
+            readHiScore()
         else:
             print("Invalid selection.")
             time.sleep(1)
