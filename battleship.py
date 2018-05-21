@@ -5,7 +5,7 @@ import random
 from operator import itemgetter
 import pickle
 
-# Following two lists are used to translate the letter in the coordinates back into numbers.
+# Following two lists are used with coordinates to translate letters to numbers
 letToNum = {'a':0, 'b':1, 'c':2, 'd':3, 'e':4, 'f':5, 'g':6, 'h':7, 'i':8, 'j':9}
 numToLet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
@@ -20,11 +20,14 @@ aiNextCoordinates = ""
 deltaAxis = ""
 difficulty = "easy"
 
-# List of player's ships
+# These make up the play area
 playerTable = []
 aiTable = []
+
+# List of ships
 playerShips = []
 aiShips = []
+
 score = 0
 name = "Beta Tester"
 
@@ -84,28 +87,45 @@ def printTable():
     os.system('cls' if os.name == 'nt' else 'clear')
     rownum = 0
 
-    print("##################   ##################")
-    print("#   YOUR SHIPS   #   #   THEIR SHIPS  #")
-    print("##################   ##################")
-    print("# A B C D E F G H#   # A B C D E F G H#")
+    print("╔════════════════╗   ╔════════════════╗")
+    print("║   YOUR SHIPS   ║   ║   THEIR SHIPS  ║")
+    print("╚════════════════╝   ╚════════════════╝")
+    print("╔═A═B═C═D═E═F═G═H╗   ╔═A═B═C═D═E═F═G═H╗")
     for item_plr, item_ai in zip(playerTable, aiTable):
         print(rownum, end='')
         for i in item_plr:
             print(" "+i, end='', flush=True)
-        print("#   "+str(rownum), end="")
+        print("║   "+str(rownum), end="")
         for j in item_ai:
             if j == shipPart:
-                j = "■" #Change this to "■" when you wanna see enemy ships
+                j = "■" #Change this to "■" when you want to see enemy ships
             print(" "+j, end='', flush=True)
-        print("#")
+        print("║")
         rownum += 1
-    print("##################   ##################")
-    print("■ = Ship section: intact")
-    print("□ = Ship section: hit")
-    print("x = Missed shot")
-    print(". = Open sea")
-    print("Score:", score)
-    print("")
+    print("╚════════════════╝   ╚════════════════╝")
+    scoretext = "Score: "+str(score)
+    textbox("■ = Ship section: intact", "□ = Ship section: hit","x = Missed shot", scoretext)
+
+def textbox(*args):
+    rowLengths = []
+
+
+    for arg in args:
+        arg = str(arg)
+        rowLengths.append(len(arg))
+
+    try:
+        boxWidth = max(rowLengths) * "═"
+    except ValueError:
+        boxWidth = ""
+
+    print("╔═"+boxWidth+"═╗")
+    for arg in args:
+        arg = str(arg)
+        while len(arg)<max(rowLengths):
+            arg = arg +" "
+        print("║ "+arg+" ║")
+    print("╚═"+boxWidth+"═╝")
 
 
 def checkShip(posX, posY, shipNum, direction, who):
@@ -145,13 +165,22 @@ def checkDamage(who):
 
 def endGame(who):
     if who == "player":
-        print("The computer sunk all your ships!")
-        print("The computer wins!")
-        time.sleep(3)
+        row1 = "The computer sunk all your ships!"
+        row2 = "The computer wins!"
+        # print("The computer sunk all your ships!")
+        # print("The computer wins!")
+        # time.sleep(3)
     elif who == "ai":
-        print("You sunk all the computer's ships!")
-        print("You win!")
-        time.sleep(2)
+        row1 = "You sunk all the computer's ships!"
+        row2 = "You win!"
+        # print("You sunk all the computer's ships!")
+        # print("You win!")
+        # time.sleep(2)
+    for i in range(1,10):
+        textbox(row1, row2)
+        time.sleep(.2)
+        printTable()
+        time.sleep(.2)
     saveHiScore()
     mainMenu()
 
@@ -240,18 +269,22 @@ def aiPlaceShip(shipNum):
 
 
 def aiPlacement():
+    '''AI placement phase'''
     for i in aiShips:
         aiPlaceShip(i)
     printTable()
 
 def aiDrawShipPart(posX, posY):
+    '''Draw a ship piece in AI area'''
     aiTable[posY][posX] = shipPart
 
 def drawShipPart(posX, posY):
+    '''Draw a ship piece in player area'''
     playerTable[posY][posX] = shipPart
     printTable()
 
 def explosion(table, posX, posY, hit = False):
+    '''Hit logic'''
     global score
     ships = []
 
@@ -285,47 +318,80 @@ def explosion(table, posX, posY, hit = False):
         printTable()
 
         if table == playerTable:
-            print("Computer's turn")
+            row1 = "Computer's turn"
+            textbox(row1)
             time.sleep(1)
-            print("Computer fires at " +numToLet[posX] + str(posY)+".")
+            printTable()
+            row2 = "Computer fires at " +numToLet[posX] + str(posY)+"."
+            textbox(row1, row2)
             time.sleep(1)
+            printTable()
+
+            # print("Computer's turn")
+            # time.sleep(1)
+            # print("Computer fires at " +numToLet[posX] + str(posY)+".")
+            # time.sleep(1)
 
         if table == aiTable:
-            print("You fire at " +numToLet[posX] + str(posY)+".")
+            row1 = "Your turn"
+            row2 = "You fire at " +numToLet[posX] + str(posY)+"."
+            row3 = "That's a hit!"
+            textbox(row1, row2)
             time.sleep(1)
-            print("That's a hit!")
+            printTable()
+            textbox(row1, row2, row3)
             time.sleep(1)
+            printTable()
+            # print("You fire at " +numToLet[posX] + str(posY)+".")
+            # time.sleep(1)
+            # print("That's a hit!")
+            # time.sleep(1)
 
         for i in ships:
             if str(posX)+str(posY) in i['coords']:
                 if table == playerTable:
-                    print("... and hits your "+i['name']+"!")
-                time.sleep(1)
+                    row3 = "... and hits your "+i['name']+"!"
+                    textbox(row1, row2, row3)
+                    # print("... and hits your "+i['name']+"!")
+                    time.sleep(1)
 
                 i['damage'] += 1
                 if i['length'] == i['damage']:
                     if table == aiTable:
-                        print("Ship Destroyed! You sunk the " +i['name']+".")
+                        row4 = "Ship Destroyed! You sunk the " +i['name']+"."
+                        # print("Ship Destroyed! You sunk the " +i['name']+".")
                         score += 200
-                        time.sleep(1)
+
                     elif table == playerTable:
-                        print("Ship Destroyed! Computer sunk your " +i['name']+".")
+                        row4 = "Ship Destroyed! Computer sunk your " +i['name']+"."
+                        # print("Ship Destroyed! Computer sunk your " +i['name']+".")
                         score -= 50
-                        time.sleep(1)
+                    textbox(row1, row2, row3, row4)
+                    time.sleep(1)
 
     else:
         if table == playerTable:
-            print("Computer's turn")
+            row1 = "Computer's turn"
+            row2 = "Computer fires at " +numToLet[posX] + str(posY)+"."
+            row3 = "... and misses."
+            textbox(row1)
             time.sleep(1)
-            print("Computer fires at " +numToLet[posX] + str(posY)+".")
+            printTable()
+            textbox(row1, row2)
             time.sleep(1)
-            print("... and misses!")
-            time.sleep(1)
+            printTable()
+            textbox(row1, row2, row3)
+            time.sleep(1.5)
+
 
         if table == aiTable:
-            print("You fire at " +numToLet[posX] + str(posY)+".")
+            row1 = "Your turn"
+            row2 = "You fire at " +numToLet[posX] + str(posY)+"."
+            row3 = "... you miss."
+            textbox(row1, row2)
             time.sleep(1)
-            print("... you miss.")
+            printTable()
+            textbox(row1, row2, row3)
             time.sleep(1)
             if table[posY][posX] == shipHit:
                 pass
@@ -356,13 +422,13 @@ def playerFire():
             break
         except IndexError:
             print("Give proper coordinates! Range: a0 to h7")
-            time.sleep(1.5)
+            time.sleep(1)
         except KeyError:
             print("Give proper coordinates! Range: a0 to h7")
-            time.sleep(1.5)
+            time.sleep(1)
         except ValueError:
             print("Give proper coordinates! Range: a0 to h7")
-            time.sleep(1.5)
+            time.sleep(1)
 
 # def aiFire():
 #     global score
@@ -509,12 +575,15 @@ def playerPlacement():
     for i in playerShips:
         placeShip(i)
     print("Placement phase complete.")
+    time.sleep(1)
 
 def firingPhase():
-    input("Starting firing phase! (Press ENTER to continue)")
+    print("Starting firing phase!")
+    time.sleep(1)
     while True:
         playerFire()
         aiFire()
+
 def setDifficulty():
     global difficulty
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -555,119 +624,134 @@ def saveHiScore():
     global difficulty
     hiScoreExists()
 
-    with open('hiscore.file', 'rb') as hs:
-        high_scores = pickle.load(hs)
+    try:
 
-    high_scores.append((name, score, difficulty))
+        with open('hiscore.file', 'rb') as hs:
+            high_scores = pickle.load(hs)
 
-    high_scores = sorted(high_scores, key=itemgetter(1),reverse=True)[:10]
+        high_scores.append((name, score, difficulty))
 
-    with  open("hiscore.file","wb") as hiscore:
-        pickle.dump(high_scores, hiscore)
+        high_scores = sorted(high_scores, key=itemgetter(1),reverse=True)[:10]
+
+        with  open("hiscore.file","wb") as hiscore:
+            pickle.dump(high_scores, hiscore)
+    except:
+        print("Error saving hiscore")
+        time.sleep(1)
+
 
 def readHiScore():
     """Displays the current high scores"""
     os.system('cls' if os.name == 'nt' else 'clear')
     high_scores = []
     hiScoreExists()
-    print("==================================================================================")
-    print(" ██╗  ██╗██╗ ██████╗ ██╗  ██╗    ███████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗")
-    print(" ██║  ██║██║██╔════╝ ██║  ██║    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝")
-    print(" ███████║██║██║  ███╗███████║    ███████╗██║     ██║   ██║██████╔╝█████╗  ███████╗")
-    print(" ██╔══██║██║██║   ██║██╔══██║    ╚════██║██║     ██║   ██║██╔══██╗██╔══╝  ╚════██║")
-    print(" ██║  ██║██║╚██████╔╝██║  ██║    ███████║╚██████╗╚██████╔╝██║  ██║███████╗███████║")
-    print(" ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝")
-    print("==================================================================================")
+    print("====================================================================================")
+    print("| ██╗  ██╗██╗ ██████╗ ██╗  ██╗    ███████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗|")
+    print("| ██║  ██║██║██╔════╝ ██║  ██║    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝|")
+    print("| ███████║██║██║  ███╗███████║    ███████╗██║     ██║   ██║██████╔╝█████╗  ███████╗|")
+    print("| ██╔══██║██║██║   ██║██╔══██║    ╚════██║██║     ██║   ██║██╔══██╗██╔══╝  ╚════██║|")
+    print("| ██║  ██║██║╚██████╔╝██║  ██║    ███████║╚██████╗╚██████╔╝██║  ██║███████╗███████║|")
+    print("| ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝|")
+    print("====================================================================================")
     rowNum = 1
-    with open('hiscore.file', 'rb') as hs:
-        high_scores = pickle.load(hs)
 
-    for i in high_scores:
-        name, score, difficulty = i
-        print(str(rowNum)+".",name,"| Difficulty:",difficulty," | Score:",score)
-        rowNum += 1
-    print("==================================================================================")
-    print("\n")
+    try:
+        with open('hiscore.file', 'rb') as hs:
+            high_scores = pickle.load(hs)
+
+        for i in high_scores:
+            name, score, difficulty = i
+            print(str(rowNum)+".",name,"| Difficulty:",difficulty," | Score:",score)
+            rowNum += 1
+        print("====================================================================================")
+        print("\n")
+    except:
+        print("Unable to read hiscores")
     input("(Press ENTER to continue)")
 
 
 
 
 def mainMenu():
-    while True:
-        os.system('cls' if os.name == 'nt' else 'clear')
-        print("==By=Matias=Räisänen=============================================================")
-        print("  ██████╗  █████╗ ████████╗████████╗██╗     ███████╗███████╗██╗  ██╗██╗██████╗ ")
-        print("  ██╔══██╗██╔══██╗╚══██╔══╝╚══██╔══╝██║     ██╔════╝██╔════╝██║  ██║██║██╔══██╗")
-        print("  ██████╔╝███████║   ██║      ██║   ██║     █████╗  ███████╗███████║██║██████╔╝")
-        print("  ██╔══██╗██╔══██║   ██║      ██║   ██║     ██╔══╝  ╚════██║██╔══██║██║██╔═══╝ ")
-        print("  ██████╔╝██║  ██║   ██║      ██║   ███████╗███████╗███████║██║  ██║██║██║     ")
-        print("  ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝╚═╝     ")
-        print("=========================================================================v.=0.8=")
-
-        selection = input("\
-        (1) New game\n\
-        (2) Set difficulty\n\
-        (3) How to play\n\
-        (4) About\n\
-        (5) Quit\n\n\
-        Make a selection: ")
-
-        if selection == "1":
-            newGame()
-        elif selection =="2":
-            setDifficulty()
-
-        elif selection == "3":
-            '''How to play'''
+    try:
+        while True:
             os.system('cls' if os.name == 'nt' else 'clear')
-            print("HOW TO PLAY")
-            print("")
-            print("--Placement phase")
-            print("Place your ships. First, set the coordinates where you want your ship's starting point to be.")
-            print("Next, choose the direction to extend your ship to.")
-            print("Make sure you stay withing the boundaries of the coordinates from a0 to h7.")
-            print("")
-            print("--Firing phase")
-            print("Take turns firing with the computer.")
-            print("The first one to sink each of the opponent's ships is the winner.")
-            print("")
-            print("--Scoring")
-            print("Enemy ship hit = 100pts")
-            print("Enemy ship sunk = 200pts")
-            print("Player ship hit = -10pts")
-            print("Player ship sunk = -50pts")
-            print("")
-            print("--Difficulty")
-            print("The game has three difficulty settings")
-            print("  1. Easy")
-            print("   The computer fires at random coordinates")
-            print("  2. Normal")
-            print("   Default difficulty. The computer is a bit more clever. (Not yet implemented)")
-            print("  3. Impossible")
-            print("   The computer has radar, sonar and homing missiles.")
-            print("")
-            input("(Press ENTER to continue)")
-            continue
-        elif selection == "4":
-            '''About'''
-            os.system('cls' if os.name == 'nt' else 'clear')
-            print("")
-            print("A game of Battleship.")
-            print("Made by Matias Räisänen in 2018.")
-            print("Programmed in Python.")
-            print("")
-            input("(Press ENTER to continue)")
-            continue
-        elif selection == "5":
-            '''Quit'''
-            sys.exit()
-        elif selection == "6":
-            readHiScore()
-        else:
-            print("Invalid selection.")
-            time.sleep(1)
-            continue
+            print("==By=Matias=Räisänen=============================================================")
+            print("| ██████╗  █████╗ ████████╗████████╗██╗     ███████╗███████╗██╗  ██╗██╗██████╗  |")
+            print("| ██╔══██╗██╔══██╗╚══██╔══╝╚══██╔══╝██║     ██╔════╝██╔════╝██║  ██║██║██╔══██╗ |")
+            print("| ██████╔╝███████║   ██║      ██║   ██║     █████╗  ███████╗███████║██║██████╔╝ |")
+            print("| ██╔══██╗██╔══██║   ██║      ██║   ██║     ██╔══╝  ╚════██║██╔══██║██║██╔═══╝  |")
+            print("| ██████╔╝██║  ██║   ██║      ██║   ███████╗███████╗███████║██║  ██║██║██║      |")
+            print("| ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝╚═╝      |")
+            print("=========================================================================v.=0.8==")
+
+            selection = input("\
+            (1) New game\n\
+            (2) Set difficulty\n\
+            (3) How to play\n\
+            (4) Show high scores\n\
+            (5) About\n\
+            (6) Quit\n\n\
+            Make a selection: ")
+
+            if selection == "1":
+                newGame()
+            elif selection =="2":
+                setDifficulty()
+
+            elif selection == "3":
+                '''How to play'''
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print("HOW TO PLAY")
+                print("")
+                print("--Placement phase")
+                print("Place your ships. First, set the coordinates where you want your ship's starting point to be.")
+                print("Next, choose the direction to extend your ship to.")
+                print("Make sure you stay withing the boundaries of the coordinates from a0 to h7.")
+                print("")
+                print("--Firing phase")
+                print("Take turns firing with the computer.")
+                print("The first one to sink each of the opponent's ships is the winner.")
+                print("")
+                print("--Scoring")
+                print("Enemy ship hit = 100pts")
+                print("Enemy ship sunk = 200pts")
+                print("Player ship hit = -10pts")
+                print("Player ship sunk = -50pts")
+                print("")
+                print("--Difficulty")
+                print("The game has three difficulty settings")
+                print("  1. Easy")
+                print("   The computer fires at random coordinates")
+                print("  2. Normal")
+                print("   Default difficulty. The computer is a bit more clever. (Not yet implemented)")
+                print("  3. Impossible")
+                print("   The computer has radar, sonar and homing missiles.")
+                print("")
+                input("(Press ENTER to continue)")
+                continue
+            elif selection == "5":
+                '''About'''
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print("")
+                print("A game of Battleship.")
+                print("Made by Matias Räisänen in 2018.")
+                print("Programmed in Python.")
+                print("")
+                input("(Press ENTER to continue)")
+                continue
+            elif selection == "6":
+                '''Quit'''
+                print("\nThanks for playing!")
+                sys.exit()
+            elif selection == "4":
+                readHiScore()
+            else:
+                print("Invalid selection.")
+                time.sleep(1)
+                continue
+    except KeyboardInterrupt:
+        print("\nThanks for playing!")
 
 
 def newGame():
