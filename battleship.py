@@ -292,23 +292,9 @@ def explosion(table, posX, posY, hit = False):
 
     # If the tile is already a destroyed ship part
     if table[posY][posX] == shipHit:
-        table[posY][posX] = "*"
-        time.sleep(.2)
-        printTable()
-        table[posY][posX] = "¤"
-        time.sleep(.2)
-        printTable()
         table[posY][posX] = shipHit
         printTable()
         return
-
-    # Else lets blow it up!
-    table[posY][posX] = "*"
-    time.sleep(.2)
-    printTable()
-    table[posY][posX] = "¤"
-    time.sleep(.2)
-    printTable()
 
     if hit:
         table[posY][posX] = shipHit
@@ -371,6 +357,7 @@ def explosion(table, posX, posY, hit = False):
             row1 = "Computer's turn"
             row2 = "Computer fires at " +numToLet[posX] + str(posY)+"."
             row3 = "... and misses."
+            table[posY][posX] = "x"
             textbox(row1)
             time.sleep(1)
             printTable()
@@ -393,7 +380,6 @@ def explosion(table, posX, posY, hit = False):
             if table[posY][posX] == shipHit:
                 pass
             else:
-                print(table[posY][posX])
                 table[posY][posX] = "x"
     printTable()
 
@@ -406,6 +392,7 @@ def playerFire():
             printTable()
             print("Your turn")
             coords = input("Enter coordinates to fire at: ")
+            printTable()
             posX = letToNum[coords[0].lower()]
             posY = int(coords[1])
 
