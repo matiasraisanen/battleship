@@ -18,7 +18,7 @@ aiDidHit = False
 aiHitsInRow = 0
 aiNextCoordinates = ""
 deltaAxis = ""
-difficulty = "easy"
+difficulty = "Easy"
 
 # These make up the play area
 playerTable = []
@@ -418,7 +418,7 @@ def aiFire():
     global difficulty
     global score
     printTable()
-    if difficulty == "easy":
+    if difficulty == "Easy":
         while True:
             posX = random.randint(0, 7)
             posY = random.randint(0, 7)
@@ -439,7 +439,7 @@ def aiFire():
                 explosion(playerTable, posX, posY, hit = False)
             return
 
-    if difficulty == "impossible":
+    if difficulty == "Impossible":
         for i in playerTable:
             for j in i:
                 if j == shipPart:
@@ -535,11 +535,11 @@ def setDifficulty():
     diffSetting = input("Make a selection: ")
 
     if diffSetting == "1":
-        difficulty = "easy"
+        difficulty = "Easy"
     elif diffSetting == "2":
-        difficulty = "easy" #Change to NORMAL later
+        difficulty = "Easy" #Change to NORMAL later
     elif diffSetting == "3":
-        difficulty = "impossible"
+        difficulty = "Impossible"
     else:
         print("\tInvalid selection!")
         time.sleep(1)
