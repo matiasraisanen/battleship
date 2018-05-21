@@ -21,14 +21,14 @@ deltaAxis = ""
 difficulty = "Easy"
 
 # These make up the play area
-playerTable = []
-aiTable = []
+# playerTable = []
+# aiTable = []
 
 # List of ships
-playerShips = []
-aiShips = []
+# playerShips = []
+# aiShips = []
 
-score = 0
+#score = 0
 name = "Beta Tester"
 
 
@@ -40,8 +40,10 @@ def initializeGame():
     global playerShips
     global aiShips
     global score
+    global turnCounter
 
     score = 0
+    turnCounter = 0
     playerTable = [
         ['.', '.', '.', '.', '.', '.', '.', '.', ],
         ['.', '.', '.', '.', '.', '.', '.', '.', ],
@@ -68,7 +70,7 @@ def initializeGame():
     {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
     # {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     # {'id': 'playerShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'playerShip4', 'name':'corvette', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     # {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
     ]
 
@@ -77,18 +79,38 @@ def initializeGame():
     # {'id': 'aiShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
     # {'id': 'aiShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     # {'id': 'aiShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'aiShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'aiShip4', 'name':'corvette', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     {'id': 'aiShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]}
     ]
+
+def setName():
+    global name
+
+    while True:
+        name = input("Insert your name: ")
+
+        if len(name) < 1:
+            print("Please enter a name")
+            time.sleep(1)
+            continue
+        if len(name) > 16:
+            name = name[0:16]
+        if len(name) < 16:
+            name = name.center(16)
+        break
+
+
+
 
 
 def printTable():
     '''Print the play field'''
     os.system('cls' if os.name == 'nt' else 'clear')
     rownum = 0
+    global name
 
     print("╔════════════════╗   ╔════════════════╗")
-    print("║   YOUR SHIPS   ║   ║   THEIR SHIPS  ║")
+    print("║"+name.upper()+"║   ║    COMPUTER    ║")
     print("╚════════════════╝   ╚════════════════╝")
     print("╔═A═B═C═D═E═F═G═H╗   ╔═A═B═C═D═E═F═G═H╗")
     for item_plr, item_ai in zip(playerTable, aiTable):
@@ -163,14 +185,14 @@ def checkDamage(who):
     if totalHealth == totalDamage:
         endGame(who)
 
-def endGame(who):
-    if who == "player":
+def endGame(loser):
+    if loser == "player":
         row1 = "The computer sunk all your ships!"
         row2 = "The computer wins!"
         # print("The computer sunk all your ships!")
         # print("The computer wins!")
         # time.sleep(3)
-    elif who == "ai":
+    elif loser == "ai":
         row1 = "You sunk all the computer's ships!"
         row2 = "You win!"
         # print("You sunk all the computer's ships!")
@@ -178,7 +200,9 @@ def endGame(who):
         # time.sleep(2)
     textbox(row1, row2)
     time.sleep(2)
-    saveHiScore()
+    print("")
+    input("(Press ENTER to continue)")
+    saveHiScore(loser)
     mainMenu()
 
 
@@ -303,11 +327,11 @@ def explosion(table, posX, posY, hit = False):
         if table == playerTable:
             row1 = "Computer's turn"
             textbox(row1)
-            time.sleep(1)
+            time.sleep(1.5)
             printTable()
             row2 = "Computer fires at " +numToLet[posX] + str(posY)+"."
             textbox(row1, row2)
-            time.sleep(1)
+            time.sleep(1.5)
             printTable()
 
             # print("Computer's turn")
@@ -320,10 +344,10 @@ def explosion(table, posX, posY, hit = False):
             row2 = "You fire at " +numToLet[posX] + str(posY)+"."
             row3 = "That's a hit!"
             textbox(row1, row2)
-            time.sleep(1)
+            time.sleep(1.5)
             printTable()
             textbox(row1, row2, row3)
-            time.sleep(1)
+            time.sleep(1.5)
             printTable()
             # print("You fire at " +numToLet[posX] + str(posY)+".")
             # time.sleep(1)
@@ -343,14 +367,14 @@ def explosion(table, posX, posY, hit = False):
                     if table == aiTable:
                         row4 = "Ship Destroyed! You sunk the " +i['name']+"."
                         # print("Ship Destroyed! You sunk the " +i['name']+".")
-                        score += 200
+                        score += 100
 
                     elif table == playerTable:
                         row4 = "Ship Destroyed! Computer sunk your " +i['name']+"."
                         # print("Ship Destroyed! Computer sunk your " +i['name']+".")
                         score -= 50
                     textbox(row1, row2, row3, row4)
-                    time.sleep(1)
+                    time.sleep(2)
 
     else:
         if table == playerTable:
@@ -359,10 +383,10 @@ def explosion(table, posX, posY, hit = False):
             row3 = "... and misses."
             table[posY][posX] = "x"
             textbox(row1)
-            time.sleep(1)
+            time.sleep(1.5)
             printTable()
             textbox(row1, row2)
-            time.sleep(1)
+            time.sleep(1.5)
             printTable()
             textbox(row1, row2, row3)
             time.sleep(1.5)
@@ -373,10 +397,10 @@ def explosion(table, posX, posY, hit = False):
             row2 = "You fire at " +numToLet[posX] + str(posY)+"."
             row3 = "... you miss."
             textbox(row1, row2)
-            time.sleep(1)
+            time.sleep(1.5)
             printTable()
             textbox(row1, row2, row3)
-            time.sleep(1)
+            time.sleep(1.5)
             if table[posY][posX] == shipHit:
                 pass
             else:
@@ -512,21 +536,25 @@ def playerPlacement():
     time.sleep(1)
 
 def firingPhase():
+    global turnCounter
     print("Starting firing phase!")
     time.sleep(1)
     while True:
+        turnCounter += 1
         playerFire()
         aiFire()
 
 def setDifficulty():
     global difficulty
     os.system('cls' if os.name == 'nt' else 'clear')
+
+
     print("SET DIFFICULTY")
     print("")
     textbox("1. Easy")
     print(" -The computer fires at random coordinates")
     textbox("2. Normal")
-    print(" -Default difficulty. The computer is a bit more clever. (Not yet implemented)")
+    print(" -Default difficulty. The computer is a bit more clever. (Not yet available)")
     textbox("3. Impossible")
     print(" -The computer has radar, sonar and homing missiles.")
     print("")
@@ -537,7 +565,10 @@ def setDifficulty():
     if diffSetting == "1":
         difficulty = "Easy"
     elif diffSetting == "2":
-        difficulty = "Easy" #Change to NORMAL later
+    #    difficulty = "Easy" #Change to NORMAL later
+        print("Sorry. NORMAL difficulty is not yet available. Pick easy instead")
+        time.sleep(2)
+        setDifficulty()
     elif diffSetting == "3":
         difficulty = "Impossible"
     else:
@@ -556,20 +587,28 @@ def hiScoreExists():
         pickle.dump(emptylist, hiscore)
         hiscore.close()
 
-def saveHiScore():
+def saveHiScore(loser):
     """Save the current score as a tuple. High Score list contains 10 best scores. If list is longer, the lowest score is discarded"""
     high_scores = []
     global score
     global name
     global difficulty
+    global turnCounter
     hiScoreExists()
+
+    if loser == "ai":
+        outcome = "Game WON in "+str(turnCounter)+" turns"
+    elif loser == "player":
+        outcome = "Game LOST in "+str(turnCounter)+" turns"
+
+    name = name.strip()
 
     try:
 
         with open('hiscore.file', 'rb') as hs:
             high_scores = pickle.load(hs)
 
-        high_scores.append((name, score, difficulty))
+        high_scores.append((name, score, difficulty, outcome))
 
         high_scores = sorted(high_scores, key=itemgetter(1),reverse=True)[:10]
 
@@ -585,14 +624,14 @@ def readHiScore():
     os.system('cls' if os.name == 'nt' else 'clear')
     high_scores = []
     hiScoreExists()
-    print("====================================================================================")
-    print("| ██╗  ██╗██╗ ██████╗ ██╗  ██╗    ███████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗|")
-    print("| ██║  ██║██║██╔════╝ ██║  ██║    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝|")
-    print("| ███████║██║██║  ███╗███████║    ███████╗██║     ██║   ██║██████╔╝█████╗  ███████╗|")
-    print("| ██╔══██║██║██║   ██║██╔══██║    ╚════██║██║     ██║   ██║██╔══██╗██╔══╝  ╚════██║|")
-    print("| ██║  ██║██║╚██████╔╝██║  ██║    ███████║╚██████╗╚██████╔╝██║  ██║███████╗███████║|")
-    print("| ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝|")
-    print("====================================================================================")
+    print("=======================================================================================")
+    print("|  ██╗  ██╗██╗ ██████╗ ██╗  ██╗    ███████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗  |")
+    print("|  ██║  ██║██║██╔════╝ ██║  ██║    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝  |")
+    print("|  ███████║██║██║  ███╗███████║    ███████╗██║     ██║   ██║██████╔╝█████╗  ███████╗  |")
+    print("|  ██╔══██║██║██║   ██║██╔══██║    ╚════██║██║     ██║   ██║██╔══██╗██╔══╝  ╚════██║  |")
+    print("|  ██║  ██║██║╚██████╔╝██║  ██║    ███████║╚██████╗╚██████╔╝██║  ██║███████╗███████║  |")
+    print("|  ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝  |")
+    print("=10=BEST=SCORES========================================================================")
     rowNum = 1
 
     try:
@@ -600,10 +639,19 @@ def readHiScore():
             high_scores = pickle.load(hs)
 
         for i in high_scores:
-            name, score, difficulty = i
-            print(str(rowNum)+".",name,"| Difficulty:",difficulty," | Score:",score)
+            name, score, difficulty, outcome = i
+
+            print(str(rowNum).rjust(2)+". ",\
+                name.ljust(16,'.'),\
+                "| Score:....",str(score).rjust(4, '.'),\
+                "| Difficulty:..",difficulty.rjust(10, '.'),\
+                "| ",outcome,\
+                 sep='')
             rowNum += 1
-        print("====================================================================================")
+
+        if len(high_scores) == 0:
+            print("No high scores yet!")
+        print("=======================================================================================")
         print("\n")
     except:
         print("Unable to read hiscores")
@@ -688,6 +736,7 @@ def mainMenu():
 
 def newGame():
     initializeGame()
+    setName()
     printTable()
     aiPlacement()
     playerPlacement()
