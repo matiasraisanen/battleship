@@ -67,7 +67,7 @@ def initializeGame():
     playerShips = [
     {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
     # {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'playerShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'playerShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     # {'id': 'playerShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     # {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
     ]
@@ -76,7 +76,7 @@ def initializeGame():
     aiShips = [
     # {'id': 'aiShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
     # {'id': 'aiShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'aiShip3', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    # {'id': 'aiShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     # {'id': 'aiShip4', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     {'id': 'aiShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]}
     ]
@@ -176,11 +176,8 @@ def endGame(who):
         # print("You sunk all the computer's ships!")
         # print("You win!")
         # time.sleep(2)
-    for i in range(1,10):
-        textbox(row1, row2)
-        time.sleep(.2)
-        printTable()
-        time.sleep(.2)
+    textbox(row1, row2)
+    time.sleep(2)
     saveHiScore()
     mainMenu()
 
@@ -429,56 +426,6 @@ def playerFire():
         except ValueError:
             print("Give proper coordinates! Range: a0 to h7")
             time.sleep(1)
-
-# def aiFire():
-#     global score
-#     global aiDidHit
-#     global aiNextCoordinates
-#     global aiHitsInRow
-#     printTable()
-#     while True:
-#         if aiDidHit == False:
-#             posX = random.randint(0, 7)
-#             posY = random.randint(0, 7)
-#         elif aiDidHit == True:
-#             posX = int(aiNextCoordinates[0])
-#             posY = int(aiNextCoordinates[1])
-#             print(posX, posY)
-#
-#         # Do not fire again at broken ships or earlier misses
-#         if playerTable[posY][posX] == shipHit and aiDidHit == False:
-#             continue
-#         # Just one way of getting out from a loop if a ship is hit and the next tile is also a shiphit...
-#         if playerTable[posY][posX] == shipHit and aiDidHit == True:
-#             aiNextCoordinates = randomDirection(posX, posY)
-#         if playerTable[posY][posX] == "x":
-#             continue
-#
-#         # Fire at a ship part
-#         if playerTable[posY][posX] == shipPart:
-#
-#             explosion(playerTable, posX, posY, hit = True)
-#             aiDidHit = True
-#             aiHitsInRow += 1
-#             print("Ai fires at " +numToLet[posX] + str(posY)+".")
-#             print("Coords before: ", posX, posY)
-#             aiNextCoordinates = randomDirection(posX, posY)
-#             print("Coords after: ", aiNextCoordinates)
-#             input("OK")
-#
-#
-#             input("Hit! (Press ENTER to continue.)")
-#             score -=10
-#             checkDamage("ai")
-#
-#         # Missed shot
-#         else:
-#             explosion(playerTable, posX, posY, hit = False)
-#             print("Ai fires at " +numToLet[posX] + str(posY)+".")
-#             aiDidHit = False
-#             aiHitsInRow = 0
-#             input("Miss! (Press ENTER to continue.)")
-#         return
 
 def aiFire():
     global difficulty
