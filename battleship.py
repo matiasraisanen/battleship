@@ -535,11 +535,17 @@ def setDifficulty():
     global difficulty
     os.system('cls' if os.name == 'nt' else 'clear')
     print("SET DIFFICULTY")
-    diffSetting = input("\n\
-    (1) Easy\n\
-    (2) Normal\n\
-    (3) Impossible\n\n\
-    Make a selection: ")
+    print("")
+    textbox("1. Easy")
+    print(" -The computer fires at random coordinates")
+    textbox("2. Normal")
+    print(" -Default difficulty. The computer is a bit more clever. (Not yet implemented)")
+    textbox("3. Impossible")
+    print(" -The computer has radar, sonar and homing missiles.")
+    print("")
+
+
+    diffSetting = input("Make a selection: ")
 
     if diffSetting == "1":
         difficulty = "easy"
@@ -632,14 +638,16 @@ def mainMenu():
             print("| ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝╚═╝      |")
             print("=========================================================================v.=0.8==")
 
-            selection = input("\
-            (1) New game\n\
-            (2) Set difficulty\n\
-            (3) How to play\n\
-            (4) Show high scores\n\
-            (5) About\n\
-            (6) Quit\n\n\
-            Make a selection: ")
+
+            row1 = "(1) New game"
+            row2 = "(2) Set difficulty"
+            row3 = "(3) How to play"
+            row4 = "(4) Show high scores"
+            row5 = "(5) About"
+            row6 = "(6) Quit"
+            textbox(row1, row2, row3, row4, row5, row6)
+
+            selection = input("Make a selection: ")
 
             if selection == "1":
                 newGame()
@@ -651,39 +659,29 @@ def mainMenu():
                 os.system('cls' if os.name == 'nt' else 'clear')
                 print("HOW TO PLAY")
                 print("")
-                print("--Placement phase")
+                textbox("Placement phase")
                 print("Place your ships. First, set the coordinates where you want your ship's starting point to be.")
                 print("Next, choose the direction to extend your ship to.")
                 print("Make sure you stay withing the boundaries of the coordinates from a0 to h7.")
                 print("")
-                print("--Firing phase")
+                textbox("Firing phase")
                 print("Take turns firing with the computer.")
                 print("The first one to sink each of the opponent's ships is the winner.")
                 print("")
-                print("--Scoring")
+                textbox("Scoring")
                 print("Enemy ship hit = 100pts")
                 print("Enemy ship sunk = 200pts")
                 print("Player ship hit = -10pts")
                 print("Player ship sunk = -50pts")
-                print("")
-                print("--Difficulty")
-                print("The game has three difficulty settings")
-                print("  1. Easy")
-                print("   The computer fires at random coordinates")
-                print("  2. Normal")
-                print("   Default difficulty. The computer is a bit more clever. (Not yet implemented)")
-                print("  3. Impossible")
-                print("   The computer has radar, sonar and homing missiles.")
                 print("")
                 input("(Press ENTER to continue)")
                 continue
             elif selection == "5":
                 '''About'''
                 os.system('cls' if os.name == 'nt' else 'clear')
+                print("ABOUT")
                 print("")
-                print("A game of Battleship.")
-                print("Made by Matias Räisänen in 2018.")
-                print("Programmed in Python.")
+                textbox("A game of Battleship.", "Made by Matias Räisänen in 2018.", "Programmed in Python.")
                 print("")
                 input("(Press ENTER to continue)")
                 continue
