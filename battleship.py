@@ -260,10 +260,7 @@ def placeShip(shipNum):
                     shipNum['coords'].append(str(startPosX)+str(startPosY))
                     startPosY += 1
             return
-        except IndexError:
-            print("Invalid coordinates")
-            time.sleep(1.5)
-        except KeyError:
+        except:
             print("Invalid coordinates")
             time.sleep(1.5)
         printTable()
@@ -343,11 +340,11 @@ def explosion(table, posX, posY, hit = False):
         if table == playerTable:
             row1 = "Computer's turn"
             textbox(row1)
-            time.sleep(.5)
+            time.sleep(1.5)
             printTable()
             row2 = "Computer fires at " +numToLet[posX] + str(posY)+"."
             textbox(row1, row2)
-            time.sleep(.5)
+            time.sleep(1.5)
             printTable()
 
             # print("Computer's turn")
@@ -376,7 +373,7 @@ def explosion(table, posX, posY, hit = False):
                     row3 = "... and hits your "+i['name']+"!"
                     textbox(row1, row2, row3)
                     # print("... and hits your "+i['name']+"!")
-                    time.sleep(.5)
+                    time.sleep(1.5)
 
                 i['damage'] += 1
                 if i['length'] == i['damage']:
@@ -639,7 +636,7 @@ def firingPhase():
     time.sleep(1)
     while True:
         turnCounter += 1
-        #playerFire()
+        playerFire()
         aiFire()
 
 def setDifficulty():
@@ -710,7 +707,7 @@ def saveHiScore(loser):
         with open('hiscore.file', 'rb') as hs:
             high_scores = pickle.load(hs)
 
-        high_scores.append((name, score, difficulty, outcome))
+        high_scores.append((name, int(score), difficulty, outcome))
 
         high_scores = sorted(high_scores, key=itemgetter(1),reverse=True)[:10]
 
@@ -757,7 +754,10 @@ def readHiScore():
         print("\n")
     except:
         print("Unable to read hiscores")
-    input("(Press ENTER to continue)")
+    usrInput = input("(Press ENTER to continue) ")
+
+    if usrInput == "clear":
+        os.remove("hiscore.file")
 
 
 
