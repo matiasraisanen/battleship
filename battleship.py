@@ -14,11 +14,14 @@ shipPart = "■"
 shipHit = "□"
 
 # The following are values for the shooting artificial intelligence
-aiDidHit = False
+aiSearching = False
 aiHitsInRow = 0
-aiNextCoordinates = ""
+aiNextCoordinates = []
+aiHitCoordinates = []
 deltaAxis = ""
-difficulty = "Easy"
+
+difficulty = "Medium"
+scoreMultiplier = 0.5
 
 # These make up the play area
 # playerTable = []
@@ -68,8 +71,8 @@ def initializeGame():
 
     playerShips = [
     {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-    # {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'playerShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'playerShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     # {'id': 'playerShip4', 'name':'corvette', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     # {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
     ]
@@ -87,6 +90,7 @@ def setName():
     global name
 
     while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
         name = input("Insert your name: ")
 
         if len(name) < 1:
@@ -307,6 +311,8 @@ def drawShipPart(posX, posY):
 def explosion(table, posX, posY, hit = False):
     '''Hit logic'''
     global score
+    global scoreMultiplier
+    global aiSearching
     ships = []
 
     if table == aiTable:
@@ -367,12 +373,13 @@ def explosion(table, posX, posY, hit = False):
                     if table == aiTable:
                         row4 = "Ship Destroyed! You sunk the " +i['name']+"."
                         # print("Ship Destroyed! You sunk the " +i['name']+".")
-                        score += 100
+                        score += (100*scoreMultiplier)
 
                     elif table == playerTable:
                         row4 = "Ship Destroyed! Computer sunk your " +i['name']+"."
                         # print("Ship Destroyed! Computer sunk your " +i['name']+".")
-                        score -= 50
+                        score -= (50*scoreMultiplier)
+                        aiSearching = False
                     textbox(row1, row2, row3, row4)
                     time.sleep(2)
 
@@ -396,15 +403,16 @@ def explosion(table, posX, posY, hit = False):
             row1 = "Your turn"
             row2 = "You fire at " +numToLet[posX] + str(posY)+"."
             row3 = "... you miss."
+            if table[posY][posX] == shipHit:
+                pass
+            else:
+                table[posY][posX] = "x"
             textbox(row1, row2)
             time.sleep(1.5)
             printTable()
             textbox(row1, row2, row3)
             time.sleep(1.5)
-            if table[posY][posX] == shipHit:
-                pass
-            else:
-                table[posY][posX] = "x"
+
     printTable()
 
 
@@ -421,7 +429,7 @@ def playerFire():
             posY = int(coords[1])
 
             if aiTable[posY][posX] == shipPart:
-                score += 100
+                score += (100*scoreMultiplier)
                 explosion(aiTable, posX, posY, hit = True)
                 checkDamage("ai")
 
@@ -441,6 +449,9 @@ def playerFire():
 def aiFire():
     global difficulty
     global score
+    global aiHitCoordinates
+    global aiSearching
+    global aiHitsInRow
     printTable()
     if difficulty == "Easy":
         while True:
@@ -454,7 +465,7 @@ def aiFire():
 
             # Fire at a ship part
             if playerTable[posY][posX] == shipPart:
-                score -=10
+                score -= (10*scoreMultiplier)
                 explosion(playerTable, posX, posY, hit = True)
                 checkDamage("player")
 
@@ -462,6 +473,36 @@ def aiFire():
             else:
                 explosion(playerTable, posX, posY, hit = False)
             return
+
+    if difficulty == "Medium":
+        while True:
+            if aiSearching == False:
+                posX = random.randint(0, 7)
+                posY = random.randint(0, 7)
+            elif aiSearching == True:
+                posX, posY = randomDirection()
+
+            # Do not fire again at broken ships or earlier misses
+            if playerTable[posY][posX] == shipHit:
+                continue
+            if playerTable[posY][posX] == "x":
+                continue
+
+            # Fire at a ship part
+            if playerTable[posY][posX] == shipPart:
+                aiSearching = True
+                aiHitsInRow += 1
+                aiHitCoordinates.append([posX, posY])
+                score -= (10*scoreMultiplier)
+                explosion(playerTable, posX, posY, hit = True)
+                checkDamage("player")
+
+            # Missed shot
+            else:
+                aiHitsInRow = 0
+                explosion(playerTable, posX, posY, hit = False)
+            return
+
 
     if difficulty == "Impossible":
         for i in playerTable:
@@ -471,20 +512,25 @@ def aiFire():
                     posX = i.index(shipPart)
                     explosion(playerTable, posX, posY, hit = True)
                     checkDamage("player")
-                    score -=10
+                    score -= (10*scoreMultiplier)
                     return
 
 
-def randomDirection(posX, posY):
+def randomDirection():
     '''Sweet artificial intelligence. Figures out where to fire next.'''
     global aiHitsInRow
     global deltaAxis
-    newPosX = posX
-    newPosY = posY
+    newPosX = aiHitCoordinates[len(aiHitCoordinates)-1][0]
+    newPosY = aiHitCoordinates[len(aiHitCoordinates)-1][1]
+    print("newposX:",newPosX)
+    print("newposY:",newPosY)
+    print("deltaAxis:",deltaAxis)
+    print("aiHitsInRow:",aiHitsInRow)
+    print("")
 
     while True:
 
-        if aiHitsInRow == 1:
+        if aiHitsInRow == 1 and len(aiHitCoordinates) == 1:
             selectAxis = random.randint(0,1)
             selectPolarity = random.randint(0,1)
             print("Newaxis:", selectAxis)
@@ -509,19 +555,37 @@ def randomDirection(posX, posY):
                     deltaAxis = "positiveY"
                     print("positiveY")
             if newPosX < 0 or newPosX > 7 or newPosY < 0 or newPosY > 7:
+                print("overflow, redo")
                 continue
 
-
-        elif aiHitsInRow > 1:
+        if aiHitsInRow == 0 or playerTable[newPosY][newPosX]=="x":
+            aiNextCoordinates = aiHitCoordinates[0]
             if deltaAxis == "negativeX":
-                posX -= 1
+                deltaAxis = "positiveX"
+                newPosX = aiHitCoordinates[0][0] + 1
             elif deltaAxis == "positiveX":
-                posX += 1
+                deltaAxis = "negativeX"
+                newPosX = aiHitCoordinates[0][0] - 1
             elif deltaAxis == "negativeY":
-                posY -= 1
+                deltaAxis = "positiveY"
+                newPosY = aiHitCoordinates[0][1] + 1
             elif deltaAxis == "positiveY":
-                posY += 1
+                deltaAxis = "negativeY"
+                newPosY = aiHitCoordinates[0][0] - 1
 
+
+
+        elif aiHitsInRow >= 1:
+            if deltaAxis == "negativeX":
+                newPosX -= 1
+            elif deltaAxis == "positiveX":
+                newPosX += 1
+            elif deltaAxis == "negativeY":
+                newPosY -= 1
+            elif deltaAxis == "positiveY":
+                newPosY += 1
+
+        input("ok")
         return newPosX, newPosY
 
 
@@ -541,22 +605,23 @@ def firingPhase():
     time.sleep(1)
     while True:
         turnCounter += 1
-        playerFire()
+        #playerFire()
         aiFire()
 
 def setDifficulty():
     global difficulty
+    global scoreMultiplier
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
     print("SET DIFFICULTY")
     print("")
     textbox("1. Easy")
-    print(" -The computer fires at random coordinates")
+    print(" -The computer fires at random coordinates. 50% score.")
     textbox("2. Normal")
-    print(" -Default difficulty. The computer is a bit more clever. (Not yet available)")
+    print(" -Default difficulty. The computer is a bit more clever. 100% score. (Not yet available)")
     textbox("3. Impossible")
-    print(" -The computer has radar, sonar and homing missiles.")
+    print(" -The computer has radar, sonar and homing missiles. 200% score.")
     print("")
 
 
@@ -564,13 +629,16 @@ def setDifficulty():
 
     if diffSetting == "1":
         difficulty = "Easy"
+        scoreMultiplier = 0.5
     elif diffSetting == "2":
     #    difficulty = "Easy" #Change to NORMAL later
+    #    scoreMultiplier = 1
         print("Sorry. NORMAL difficulty is not yet available. Pick easy instead")
         time.sleep(2)
         setDifficulty()
     elif diffSetting == "3":
         difficulty = "Impossible"
+        scoreMultiplier = 2
     else:
         print("\tInvalid selection!")
         time.sleep(1)
