@@ -202,15 +202,11 @@ def endGame(loser):
     if loser == "player":
         row1 = "The computer sunk all your ships!"
         row2 = "The computer wins!"
-        # print("The computer sunk all your ships!")
-        # print("The computer wins!")
-        # time.sleep(3)
+
     elif loser == "ai":
         row1 = "You sunk all the computer's ships!"
         row2 = "You win!"
-        # print("You sunk all the computer's ships!")
-        # print("You win!")
-        # time.sleep(2)
+
     textbox(row1, row2)
     time.sleep(2)
     print("")
@@ -339,18 +335,13 @@ def explosion(table, posX, posY, hit = False):
 
         if table == playerTable:
             row1 = "Computer's turn"
+            row2 = "Computer fires at " +numToLet[posX] + str(posY)+"."
             textbox(row1)
             time.sleep(1.5)
             printTable()
-            row2 = "Computer fires at " +numToLet[posX] + str(posY)+"."
             textbox(row1, row2)
             time.sleep(1.5)
             printTable()
-
-            # print("Computer's turn")
-            # time.sleep(1)
-            # print("Computer fires at " +numToLet[posX] + str(posY)+".")
-            # time.sleep(1)
 
         if table == aiTable:
             row1 = "Your turn"
@@ -362,29 +353,22 @@ def explosion(table, posX, posY, hit = False):
             textbox(row1, row2, row3)
             time.sleep(1.5)
             printTable()
-            # print("You fire at " +numToLet[posX] + str(posY)+".")
-            # time.sleep(1)
-            # print("That's a hit!")
-            # time.sleep(1)
 
         for i in ships:
             if str(posX)+str(posY) in i['coords']:
                 if table == playerTable:
                     row3 = "... and hits your "+i['name']+"!"
                     textbox(row1, row2, row3)
-                    # print("... and hits your "+i['name']+"!")
                     time.sleep(1.5)
 
                 i['damage'] += 1
                 if i['length'] == i['damage']:
                     if table == aiTable:
                         row4 = "Ship Destroyed! You sunk the " +i['name']+"."
-                        # print("Ship Destroyed! You sunk the " +i['name']+".")
                         score += (100*scoreMultiplier)
 
                     elif table == playerTable:
                         row4 = "Ship Destroyed! Computer sunk your " +i['name']+"."
-                        # print("Ship Destroyed! Computer sunk your " +i['name']+".")
                         score -= (50*scoreMultiplier)
                         aiSearching = False # Stop searching the proximity for ship parts
                         aiHitCoordinates = []   # Reset the first hit coordinates
@@ -753,7 +737,7 @@ def readHiScore():
         print("=======================================================================================")
         print("\n")
     except:
-        print("Unable to read hiscores")
+        print("High score file corrupted.")
     usrInput = input("(Press ENTER to continue) ")
 
     if usrInput == "clear":
