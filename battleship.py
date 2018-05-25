@@ -13,24 +13,10 @@ numToLet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 shipPart = "■"
 shipHit = "□"
 
-# The following are values for the shooting artificial intelligence
-
-
 difficulty = "Medium"
-scoreMultiplier = 0.5
-
-# These make up the play area
-# playerTable = []
-# aiTable = []
-
-# List of ships
-# playerShips = []
-# aiShips = []
-
-#score = 0
+scoreMultiplier = 1
 name = "Beta Tester"
-
-
+name = name.center(16)
 
 
 def initializeGame():
@@ -82,16 +68,16 @@ def initializeGame():
     {'id': 'playerShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
     {'id': 'playerShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     {'id': 'playerShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'playerShip4', 'name':'corvette', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
+    {'id': 'playerShip4', 'name':'corvette', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'playerShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]},
     ]
 
     # List of computer's ships
     aiShips = [
-    # {'id': 'aiShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
-    # {'id': 'aiShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'aiShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
-    # {'id': 'aiShip4', 'name':'corvette', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'aiShip1', 'name':'battleship', 'model': '■ ■ ■ ■', 'length': 4, 'damage': 0, 'coords':[]},
+    {'id': 'aiShip2', 'name':'cruiser', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'aiShip3', 'name':'submarine', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
+    {'id': 'aiShip4', 'name':'corvette', 'model': '■ ■ ■', 'length': 3, 'damage': 0, 'coords':[]},
     {'id': 'aiShip5', 'name':'patrol boat', 'model': '■ ■', 'length': 2, 'damage': 0, 'coords':[]}
     ]
 
@@ -112,10 +98,6 @@ def setName():
             name = name.center(16)
         break
 
-
-
-
-
 def printTable():
     '''Print the play field'''
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -133,7 +115,7 @@ def printTable():
         print("║   "+str(rownum), end="")
         for j in item_ai:
             if j == shipPart:
-                j = "■" #Change this to "■" when you want to see enemy ships
+                j = "." #Change this to "■" when you want to see enemy ships
             print(" "+j, end='', flush=True)
         print("║")
         rownum += 1
@@ -143,7 +125,6 @@ def printTable():
 
 def textbox(*args):
     rowLengths = []
-
 
     for arg in args:
         arg = str(arg)
@@ -202,10 +183,12 @@ def endGame(loser):
     if loser == "player":
         row1 = "The computer sunk all your ships!"
         row2 = "The computer wins!"
+        score += 500
 
     elif loser == "ai":
         row1 = "You sunk all the computer's ships!"
         row2 = "You win!"
+        score -= 500
 
     textbox(row1, row2)
     time.sleep(2)
@@ -245,12 +228,12 @@ def placeShip(shipNum):
 
             # Place the ship part
             for i in range(shipNum['length']):
-                if direction == "r":
+                if direction.lower() == "r":
                     drawShipPart(startPosX, startPosY)
                     # Update ships coordinates
                     shipNum['coords'].append(str(startPosX)+str(startPosY))
                     startPosX += 1
-                elif direction == "d":
+                elif direction.lower() == "d":
                     drawShipPart(startPosX, startPosY)
                     # Update ships coordinates
                     shipNum['coords'].append(str(startPosX)+str(startPosY))
@@ -371,7 +354,9 @@ def explosion(table, posX, posY, hit = False):
                         row4 = "Ship Destroyed! Computer sunk your " +i['name']+"."
                         score -= (50*scoreMultiplier)
                         aiSearching = False # Stop searching the proximity for ship parts
+                        aiHitsInRow = 0 # Reset hits in row
                         aiHitCoordinates = []   # Reset the first hit coordinates
+                    printTable()
                     textbox(row1, row2, row3, row4)
                     time.sleep(2)
 
@@ -457,7 +442,7 @@ def aiFire():
 
             # Fire at a ship part
             if playerTable[posY][posX] == shipPart:
-                score -= (10*scoreMultiplier)
+                score -= (50*scoreMultiplier)
                 explosion(playerTable, posX, posY, hit = True)
                 checkDamage("player")
 
@@ -473,21 +458,22 @@ def aiFire():
                 posY = random.randint(0, 7)
             elif aiSearching == True:   # If AI has hit, next shot is determined by randomdirection
                 posX, posY = randomDirection()
-                print("randomdir result:", numToLet[posX], posY)
-                input("ok")
+                # print("randomdir result:", numToLet[posX], posY)
+                # input("ok")
 
             # Do not fire again at broken ships or earlier misses
-            if playerTable[posY][posX] == shipHit:
-                continue
             if playerTable[posY][posX] == "x":
+                # print("That would be a miss. let's find new coordinates")
                 continue
+
+
 
             # Fire at a ship part
             if playerTable[posY][posX] == shipPart:
                 aiSearching = True
                 aiHitsInRow += 1
                 aiHitCoordinates.append([posX, posY])
-                score -= (10*scoreMultiplier)
+                score -= (50*scoreMultiplier)
                 explosion(playerTable, posX, posY, hit = True)
                 checkDamage("player")
 
@@ -506,7 +492,7 @@ def aiFire():
                     posX = i.index(shipPart)
                     explosion(playerTable, posX, posY, hit = True)
                     checkDamage("player")
-                    score -= (10*scoreMultiplier)
+                    score -= (50*scoreMultiplier)
                     return
 
 
@@ -516,44 +502,75 @@ def randomDirection():
     global deltaAxis
     newPosX = aiHitCoordinates[len(aiHitCoordinates)-1][0]
     newPosY = aiHitCoordinates[len(aiHitCoordinates)-1][1]
-    print("aiHitCoordinates X:",numToLet[aiHitCoordinates[0][0]])
-    print("aiHitCoordinates Y:",aiHitCoordinates[0][1])
-    print("newposX:",numToLet[newPosX])
-    print("newposY:",newPosY)
-    print("deltaAxis:",deltaAxis)
-    print("aiHitsInRow:",aiHitsInRow)
-    print("")
+    hangPreventer = 0
+
+    # DEBUG PRINTS
+    # print("aiHitCoordinates[0][0] X:",numToLet[aiHitCoordinates[0][0]])
+    # print("aiHitCoordinates[0][0] Y:",aiHitCoordinates[0][1])
+    # print("newposX aiHitCoordinates[len(aiHitCoordinates)-1][0]:",numToLet[newPosX])
+    # print("newposY aiHitCoordinates[len(aiHitCoordinates)-1][1]:",newPosY)
+    # print("deltaAxis:",deltaAxis)
+    # print("aiHitsInRow:",aiHitsInRow)
+    # print("len(aiHitCoordinates):",len(aiHitCoordinates))
+    # print("")
 
     while True:
+
+        hangPreventer += 1
+        # print(hangPreventer)
+        if hangPreventer >7 and hangPreventer < 30:
+            # print("HANG PREVENTER ACTIVATED")
+            if deltaAxis == "negativeX" or deltaAxis == "positiveX":
+                selectPolarity = random.randint(0,1)
+                if selectPolarity == 0:
+                    deltaAxis = "negativeY"
+                elif selectPolarity == 1:
+                    deltaAxis = "positiveY"
+
+            if deltaAxis == "negativeY" or deltaAxis == "positiveY":
+                selectPolarity = random.randint(0,1)
+                if selectPolarity == 0:
+                    deltaAxis = "negativeX"
+                elif selectPolarity == 1:
+                    deltaAxis = "positiveX"
+        elif hangPreventer >= 30:
+            # print("cannot undo hang. resetting")
+            # input("ok")
+            aiSearching = False
+            aiHitsInRow = 0
+            return(random.randint(0, 7),random.randint(0, 7))
+        # END HANG HANGPREVENTER
+
+
         newPosX = aiHitCoordinates[len(aiHitCoordinates)-1][0]
         newPosY = aiHitCoordinates[len(aiHitCoordinates)-1][1]
 
         if aiHitsInRow == 1 and len(aiHitCoordinates) == 1:
             selectAxis = random.randint(0,1)
             selectPolarity = random.randint(0,1)
-            print("Newaxis:", selectAxis)
-            print("newpolarity:",selectPolarity)
+            # print("Newaxis:", selectAxis)
+            # print("newpolarity:",selectPolarity)
 
             if selectAxis == 0:
                 if selectPolarity == 0:
                     newPosX -= 1
                     deltaAxis = "negativeX"
-                    print("negativeX")
+                    # print("negativeX")
                 elif selectPolarity == 1:
                     newPosX += 1
                     deltaAxis = "positiveX"
-                    print("positiveX")
+                    # print("positiveX")
             elif selectAxis == 1:
                 if selectPolarity == 0:
                     newPosY -= 1
                     deltaAxis = "negativeY"
-                    print("negativeY")
+                    # print("negativeY")
                 elif selectPolarity == 1:
                     newPosY += 1
                     deltaAxis = "positiveY"
-                    print("positiveY")
+                    # print("positiveY")
             if newPosX < 0 or newPosX > 7 or newPosY < 0 or newPosY > 7:
-                print("overflow, redo")
+                # print("overflow, redo")
                 continue
 
         if aiHitsInRow == 0 or playerTable[newPosY][newPosX]=="x":
@@ -569,7 +586,22 @@ def randomDirection():
                 newPosY = aiHitCoordinates[0][1] + 1
             elif deltaAxis == "positiveY":
                 deltaAxis = "negativeY"
-                newPosY = aiHitCoordinates[0][0] - 1
+                newPosY = aiHitCoordinates[0][1] - 1
+
+            if newPosX < 0 or newPosY < 0 or newPosX > 7 or newPosY > 7:
+                aiNextCoordinates = aiHitCoordinates[0]
+                if deltaAxis == "negativeX":
+                    deltaAxis = "positiveX"
+                    newPosX = aiHitCoordinates[0][0] + 1
+                elif deltaAxis == "positiveX":
+                    deltaAxis = "negativeX"
+                    newPosX = aiHitCoordinates[0][0] - 1
+                elif deltaAxis == "negativeY":
+                    deltaAxis = "positiveY"
+                    newPosY = aiHitCoordinates[0][1] + 1
+                elif deltaAxis == "positiveY":
+                    deltaAxis = "negativeY"
+                    newPosY = aiHitCoordinates[0][1] - 1
 
 
 
@@ -583,7 +615,7 @@ def randomDirection():
             elif deltaAxis == "positiveY":
                 newPosY += 1
 
-            if newPosX < 0 or newPosY < 0 or newPosX > 7 or newPosY < 7 or playerTable[newPosY][newPosX]=="x":
+            if newPosX < 0 or newPosY < 0 or newPosX > 7 or newPosY > 7 or playerTable[newPosY][newPosX]=="x":
                 aiNextCoordinates = aiHitCoordinates[0]
                 if deltaAxis == "negativeX":
                     deltaAxis = "positiveX"
@@ -596,11 +628,34 @@ def randomDirection():
                     newPosY = aiHitCoordinates[0][1] + 1
                 elif deltaAxis == "positiveY":
                     deltaAxis = "negativeY"
-                    newPosY = aiHitCoordinates[0][0] - 1
+                    newPosY = aiHitCoordinates[0][1] - 1
+
+        try:
+            if playerTable[newPosY][newPosX]==shipHit:
+                if deltaAxis == "negativeX":
+                    newPosX -= 1
+                elif deltaAxis == "positiveX":
+                    newPosX += 1
+                elif deltaAxis == "negativeY":
+                    newPosY -= 1
+                elif deltaAxis == "positiveY":
+                    newPosY += 1
+            if playerTable[newPosY][newPosX] == "x":
+                # print("It is miss, lets redo")
+                continue
+            if playerTable[newPosY][newPosX] == shipHit:
+                # print("It is shiphit, lets redo")
+                continue
+
+
+        except:
+            # print("oopsie. lets continue")
+            continue
 
 
 
-        input("ok")
+
+        #input("ok")
         return newPosX, newPosY
 
 
@@ -620,7 +675,7 @@ def firingPhase():
     time.sleep(1)
     while True:
         turnCounter += 1
-        playerFire()
+        # playerFire()
         aiFire()
 
 def setDifficulty():
@@ -646,11 +701,8 @@ def setDifficulty():
         difficulty = "Easy"
         scoreMultiplier = 0.5
     elif diffSetting == "2":
-    #    difficulty = "Easy" #Change to NORMAL later
-    #    scoreMultiplier = 1
-        print("Sorry. NORMAL difficulty is not yet available. Pick easy instead")
-        time.sleep(2)
-        setDifficulty()
+       difficulty = "Normal" #Change to NORMAL later
+       scoreMultiplier = 1
     elif diffSetting == "3":
         difficulty = "Impossible"
         scoreMultiplier = 2
@@ -684,14 +736,12 @@ def saveHiScore(loser):
     elif loser == "player":
         outcome = "Game LOST in "+str(turnCounter)+" turns"
 
-    name = name.strip()
-
     try:
 
         with open('hiscore.file', 'rb') as hs:
             high_scores = pickle.load(hs)
 
-        high_scores.append((name, int(score), difficulty, outcome))
+        high_scores.append((name.strip(), int(score), difficulty, outcome))
 
         high_scores = sorted(high_scores, key=itemgetter(1),reverse=True)[:10]
 
@@ -737,7 +787,7 @@ def readHiScore():
         print("=======================================================================================")
         print("\n")
     except:
-        print("High score file corrupted.")
+        print("Error: High score file corrupted.")
     usrInput = input("(Press ENTER to continue) ")
 
     if usrInput == "clear":
@@ -757,7 +807,7 @@ def mainMenu():
             print("| ██╔══██╗██╔══██║   ██║      ██║   ██║     ██╔══╝  ╚════██║██╔══██║██║██╔═══╝  |")
             print("| ██████╔╝██║  ██║   ██║      ██║   ███████╗███████╗███████║██║  ██║██║██║      |")
             print("| ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝╚═╝      |")
-            print("=========================================================================v.=0.8==")
+            print("=========================================================================v.=1.0==")
 
 
             row1 = "(1) New game"
@@ -792,9 +842,10 @@ def mainMenu():
                 textbox("Scoring")
                 print("Enemy ship hit = 100pts")
                 print("Enemy ship sunk = 200pts")
-                print("Player ship hit = -10pts")
-                print("Player ship sunk = -50pts")
-                print("")
+                print("You win = 500pts")
+                print("Player ship hit = -100pts")
+                print("Player ship sunk = -200pts")
+                print("Computer wins = -500pts")
                 input("(Press ENTER to continue)")
                 continue
             elif selection == "5":
