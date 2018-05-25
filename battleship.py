@@ -180,6 +180,7 @@ def checkDamage(who):
         endGame(who)
 
 def endGame(loser):
+    global score
     if loser == "player":
         row1 = "The computer sunk all your ships!"
         row2 = "The computer wins!"
@@ -675,7 +676,7 @@ def firingPhase():
     time.sleep(1)
     while True:
         turnCounter += 1
-        # playerFire()
+        playerFire()
         aiFire()
 
 def setDifficulty():
