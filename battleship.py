@@ -755,21 +755,18 @@ def saveHiScore(loser):
 
 def saveHiScoreOnline(loser):
     """Save the highscore in MySQL database"""
-    high_scores = []
-    # global score
-    # global name
-    # global difficulty
-    # global turnCounter
-    #
-    # if loser == "ai":
-    #     outcome = "WON"
-    # elif loser == "player":
-    #     outcome = "LOST"
+    global score
+    global name
+    global difficulty
+    global turnCounter
+
+    if loser == "ai":
+        outcome = "WON"
+    elif loser == "player":
+        outcome = "LOST"
 
     try:
         r = requests.post("http://renki.dy.fi/battleship/addscore.php", data={'playername':name, 'score':score, 'difficulty':difficulty, 'outcome':outcome, 'turns':turnCounter})
-        print(r)
-        input("ok")
 
     except:
         print("Error saving hiscore")
