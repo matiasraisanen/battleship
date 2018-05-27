@@ -4,6 +4,7 @@ import sys
 import random
 from operator import itemgetter
 import pickle
+import requests
 
 # Following two lists are used with coordinates to translate letters to numbers
 letToNum = {'a':0, 'b':1, 'c':2, 'd':3, 'e':4, 'f':5, 'g':6, 'h':7, 'i':8, 'j':9}
@@ -195,7 +196,7 @@ def endGame(loser):
     time.sleep(2)
     print("")
     input("(Press ENTER to continue)")
-    saveHiScore(loser)
+    saveHiScoreOnline(loser)
     mainMenu()
 
 
@@ -752,6 +753,30 @@ def saveHiScore(loser):
         print("Error saving hiscore")
         time.sleep(1)
 
+def saveHiScoreOnline(loser):
+    """Save the highscore in MySQL database"""
+    high_scores = []
+    # global score
+    # global name
+    # global difficulty
+    # global turnCounter
+    #
+    # if loser == "ai":
+    #     outcome = "WON"
+    # elif loser == "player":
+    #     outcome = "LOST"
+
+    try:
+        r = requests.post("http://renki.dy.fi/battleship/addscore.php", data={'playername':name, 'score':score, 'difficulty':difficulty, 'outcome':outcome, 'turns':turnCounter})
+        print(r)
+        input("ok")
+
+    except:
+        print("Error saving hiscore")
+        print("Using local hiscore list instead")
+        input("ok")
+        saveHiScore(loser)
+
 
 def readHiScore():
     """Displays the current high scores"""
@@ -789,6 +814,48 @@ def readHiScore():
         print("\n")
     except:
         print("Error: High score file corrupted.")
+    usrInput = input("(Press ENTER to continue) ")
+
+    if usrInput == "clear":
+        os.remove("hiscore.file")
+
+def readHiScoreOnline():
+    """Displays the current high scores from online"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+    # high_scores = []
+    # hiScoreExists()
+    print("=======================================================================================")
+    print("|  ██╗  ██╗██╗ ██████╗ ██╗  ██╗    ███████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗  |")
+    print("|  ██║  ██║██║██╔════╝ ██║  ██║    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝  |")
+    print("|  ███████║██║██║  ███╗███████║    ███████╗██║     ██║   ██║██████╔╝█████╗  ███████╗  |")
+    print("|  ██╔══██║██║██║   ██║██╔══██║    ╚════██║██║     ██║   ██║██╔══██╗██╔══╝  ╚════██║  |")
+    print("|  ██║  ██║██║╚██████╔╝██║  ██║    ███████║╚██████╗╚██████╔╝██║  ██║███████╗███████║  |")
+    print("|  ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝  |")
+    print("=10=BEST=SCORES========================================================================")
+    rowNum = 1
+
+    try:
+        r = requests.get("http://renki.dy.fi/battleship/getscore.php")
+        high_scores = r.json()
+
+        for i in high_scores['scores']:
+            print(str(rowNum).rjust(2)+". ",\
+            i['playername'].ljust(16,'.'),\
+            "| Score:....",str(i['score']).rjust(4, '.'),\
+            "| Difficulty:..",i['difficulty'].rjust(10, '.'),\
+            "| ",i['outcome'], " in ", i['turns'], " turns",\
+            sep='')
+            rowNum += 1
+
+        if len(high_scores) == 0:
+            print("No high scores yet!")
+        print("=======================================================================================")
+        print("\n")
+    except:
+        print("Error reading hiscore.")
+        print("Using local hiscore list instead.")
+        time.sleep(1)
+        readHiScore()
     usrInput = input("(Press ENTER to continue) ")
 
     if usrInput == "clear":
@@ -863,7 +930,7 @@ def mainMenu():
                 print("\nThanks for playing!")
                 sys.exit()
             elif selection == "4":
-                readHiScore()
+                readHiScoreOnline()
             else:
                 print("Invalid selection.")
                 time.sleep(1)
@@ -879,6 +946,7 @@ def newGame():
     aiPlacement()
     playerPlacement()
     firingPhase()
+
 
 if __name__ == '__main__':
     mainMenu()
