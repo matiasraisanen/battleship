@@ -703,7 +703,7 @@ def setDifficulty():
         difficulty = "Easy"
         scoreMultiplier = 0.5
     elif diffSetting == "2":
-       difficulty = "Normal" #Change to NORMAL later
+       difficulty = "Normal"
        scoreMultiplier = 1
     elif diffSetting == "3":
         difficulty = "Impossible"
@@ -766,7 +766,7 @@ def saveHiScoreOnline(loser):
         outcome = "LOST"
 
     try:
-        r = requests.post("http://renki.dy.fi/battleship/addscore.php", data={'playername':name, 'score':score, 'difficulty':difficulty, 'outcome':outcome, 'turns':turnCounter})
+        r = requests.post("http://renki.dy.fi/battleship/addscore.php", data={'playername':name.strip(), 'score':score, 'difficulty':difficulty, 'outcome':outcome, 'turns':turnCounter})
 
     except:
         print("Error saving hiscore")
@@ -819,8 +819,6 @@ def readHiScore():
 def readHiScoreOnline():
     """Displays the current high scores from online"""
     os.system('cls' if os.name == 'nt' else 'clear')
-    # high_scores = []
-    # hiScoreExists()
     print("=======================================================================================")
     print("|  ██╗  ██╗██╗ ██████╗ ██╗  ██╗    ███████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗  |")
     print("|  ██║  ██║██║██╔════╝ ██║  ██║    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝  |")
