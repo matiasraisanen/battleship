@@ -100,7 +100,7 @@ def setName():
         break
 
 def printTable():
-    '''Print the play field'''
+    """Print the play field"""
     os.system('cls' if os.name == 'nt' else 'clear')
     rownum = 0
     global name
@@ -146,7 +146,7 @@ def textbox(*args):
 
 
 def checkShip(posX, posY, shipNum, direction, who):
-    '''Check for collisions while placing'''
+    """Check for collisions while placing"""
     if who == "player":
         table = playerTable
     elif who == "ai":
@@ -166,7 +166,7 @@ def checkShip(posX, posY, shipNum, direction, who):
         return False
 
 def checkDamage(who):
-    '''Check if all ships have been destroyed'''
+    """Check if all ships have been destroyed"""
     totalHealth = 0
     totalDamage = 0
     if who == "player":
@@ -281,22 +281,22 @@ def aiPlaceShip(shipNum):
 
 
 def aiPlacement():
-    '''AI placement phase'''
+    """AI placement phase"""
     for i in aiShips:
         aiPlaceShip(i)
     printTable()
 
 def aiDrawShipPart(posX, posY):
-    '''Draw a ship piece in AI area'''
+    """Draw a ship piece in AI area"""
     aiTable[posY][posX] = shipPart
 
 def drawShipPart(posX, posY):
-    '''Draw a ship piece in player area'''
+    """Draw a ship piece in player area"""
     playerTable[posY][posX] = shipPart
     printTable()
 
 def explosion(table, posX, posY, hit = False):
-    '''Hit logic'''
+    """Hit logic"""
     global score
     global scoreMultiplier
     global aiSearching
@@ -499,7 +499,7 @@ def aiFire():
 
 
 def randomDirection():
-    '''Sweet artificial intelligence. Figures out where to fire next.'''
+    """Sweet artificial intelligence. Figures out where to fire next."""
     global aiHitsInRow
     global deltaAxis
     newPosX = aiHitCoordinates[len(aiHitCoordinates)-1][0]
@@ -896,7 +896,7 @@ def mainMenu():
                 setDifficulty()
 
             elif selection == "3":
-                '''How to play'''
+                """How to play"""
                 os.system('cls' if os.name == 'nt' else 'clear')
                 print("HOW TO PLAY")
                 print("")
@@ -919,7 +919,7 @@ def mainMenu():
                 input("(Press ENTER to continue)")
                 continue
             elif selection == "5":
-                '''About'''
+                """About"""
                 os.system('cls' if os.name == 'nt' else 'clear')
                 print("ABOUT")
                 print("")
@@ -928,7 +928,7 @@ def mainMenu():
                 input("(Press ENTER to continue)")
                 continue
             elif selection == "6":
-                '''Quit'''
+                """Quit"""
                 print("\nThanks for playing!")
                 sys.exit()
             elif selection == "4":
