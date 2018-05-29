@@ -540,8 +540,15 @@ def randomDirection():
             # input("ok")
             aiSearching = False
             aiHitsInRow = 0
-            return(random.randint(0, 7),random.randint(0, 7))
-        # END HANG HANGPREVENTER
+
+            while True:
+                newPosY = random.randint(0, 7)
+                newPosY = random.randint(0, 7)
+                if playerTable[newPosY][newPosX]=="x" or playerTable[newPosY][newPosX]==shipHit:
+                    continue
+                else:
+                    return(newPosX, newPosY)
+            # END HANG HANGPREVENTER
 
 
         newPosX = aiHitCoordinates[len(aiHitCoordinates)-1][0]
