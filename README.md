@@ -1,5 +1,5 @@
 # Battleship
-[![Language](https://img.shields.io/badge/Python-3.6.5-green.svg?longCache=true&style=plastic)](#)  
+[![Language](http://renki.dy.fi/shields/Python-3.6.5-green.svg)](#)  
 A game of BattleShip.  
 Made in Python.
 This game is text based with neat ASCII graphics.  
